@@ -190,6 +190,7 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   padding: 16px 20px;
+  padding-top: calc(16px + var(--safe-area-top));
 }
 
 .btn-back {

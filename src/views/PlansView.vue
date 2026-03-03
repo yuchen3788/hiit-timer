@@ -131,6 +131,7 @@ function formatDuration(seconds: number): string {
   align-items: center;
   justify-content: space-between;
   padding: 20px 24px;
+  padding-top: calc(20px + var(--safe-area-top));
   background: linear-gradient(to bottom, var(--bg-primary) 80%, transparent);
   z-index: 10;
 }
