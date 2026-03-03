@@ -1,26 +1,50 @@
 :root {
-  /* 背景 */
-  --bg-primary: #1a1a1a;
-  --bg-card: rgba(255, 255, 255, 0.08);
-  --bg-card-hover: rgba(255, 255, 255, 0.12);
+  /* 基础色板 */
+  --color-black: #000000;
+  --color-white: #ffffff;
+  
+  /* 背景体系 */
+  --bg-primary: #0f1115; /* 更深邃的背景 */
+  --bg-secondary: #1a1d24;
+  --bg-card: rgba(255, 255, 255, 0.05);
+  --bg-card-hover: rgba(255, 255, 255, 0.08);
+  --bg-overlay: rgba(0, 0, 0, 0.75);
+  --bg-input: rgba(0, 0, 0, 0.2);
 
-  /* 运动阶段渐变 */
-  --exercise-start: #FF6B35;
-  --exercise-end: #FF2D55;
+  /* 品牌色/功能色 (使用 HSL 以便调整亮度) */
+  /* 运动: 活力橙红 -> 玫红 */
+  --exercise-start: #FF512F;
+  --exercise-end: #DD2476;
+  
+  /* 休息: 清新青色 -> 翠绿 */
+  --rest-start: #43cea2;
+  --rest-end: #185a9d;
 
-  /* 休息阶段渐变 */
-  --rest-start: #00C9FF;
-  --rest-end: #92FE9D;
-
-  /* 文字 */
-  --text-primary: #ffffff;
+  /* 文字系统 */
+  --text-primary: rgba(255, 255, 255, 0.92);
   --text-secondary: rgba(255, 255, 255, 0.6);
-  --text-muted: rgba(255, 255, 255, 0.35);
+  --text-muted: rgba(255, 255, 255, 0.3);
+  --text-highlight: #ffffff;
 
   /* 圆角 */
+  --radius-xs: 4px;
   --radius-sm: 8px;
   --radius-md: 16px;
   --radius-lg: 24px;
+  --radius-xl: 32px;
+  --radius-full: 9999px;
+
+  /* 阴影与光效 */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.15);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.25);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.35);
+  --shadow-glow-exercise: 0 0 20px rgba(221, 36, 118, 0.4);
+  --shadow-glow-rest: 0 0 20px rgba(67, 206, 162, 0.4);
+
+  /* 动效 */
+  --transition-fast: 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  --transition-normal: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  --transition-slow: 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
 
   /* 安全区域 */
   --safe-area-top: env(safe-area-inset-top);
@@ -42,7 +66,7 @@ body {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   background-color: var(--bg-primary);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
@@ -50,13 +74,15 @@ body {
   -webkit-user-select: none;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
+  line-height: 1.5;
 }
 
 #app {
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding-top: var(--safe-area-top);
+  background-image: radial-gradient(circle at top right, rgba(255, 81, 47, 0.05), transparent 40%),
+                    radial-gradient(circle at bottom left, rgba(67, 206, 162, 0.05), transparent 40%);
 }
 
 button {
@@ -65,10 +91,21 @@ button {
   outline: none;
   cursor: pointer;
   -webkit-appearance: none;
+  background: transparent;
+  color: inherit;
 }
 
 input,
 select {
   font-family: inherit;
   -webkit-appearance: none;
+  outline: none;
+  border: none;
 }
+
+/* 滚动条隐藏但保留功能 */
+::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}
+

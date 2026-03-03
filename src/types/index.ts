@@ -9,6 +9,7 @@ export interface Plan {
   name: string
   exercises: Exercise[]
   restDuration: number
+  roundRestDuration: number
   rounds: number
 }
 

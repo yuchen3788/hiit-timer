@@ -14,6 +14,7 @@ const emit = defineEmits<{
 
 const name = ref('')
 const restDuration = ref(15)
+const roundRestDuration = ref(60)
 const rounds = ref(3)
 const exercises = ref<{ name: string; duration: number }[]>([])
 
@@ -24,6 +25,7 @@ watch(
     if (props.plan) {
       name.value = props.plan.name
       restDuration.value = props.plan.restDuration
+      roundRestDuration.value = props.plan.roundRestDuration ?? 60
       rounds.value = props.plan.rounds
       exercises.value = props.plan.exercises.map((e) => ({
         name: e.name,
@@ -32,6 +34,7 @@ watch(
     } else {
       name.value = ''
       restDuration.value = 15
+      roundRestDuration.value = 60
       rounds.value = 3
       exercises.value = [{ name: '', duration: 30 }]
     }
@@ -54,6 +57,7 @@ function handleSave() {
   emit('save', {
     name: trimmedName,
     restDuration: restDuration.value,
+    roundRestDuration: roundRestDuration.value,
     rounds: rounds.value,
     exercises: validExercises.map((e) => ({
       id: Date.now().toString(36) + Math.random().toString(36).slice(2),
@@ -78,49 +82,76 @@ function handleSave() {
         <div class="editor-body">
           <div class="field">
             <label>方案名称</label>
-            <input v-model="name" type="text" placeholder="如：晨间燃脂" />
+            <input v-model="name" type="text" placeholder="如：晨间燃脂" class="input-lg" />
           </div>
 
           <div class="field-row">
             <div class="field">
-              <label>休息时长（秒）</label>
-              <input v-model.number="restDuration" type="number" min="1" />
+              <label>动作间休息</label>
+              <div class="input-wrapper">
+                <input v-model.number="restDuration" type="number" min="1" />
+                <span class="suffix">秒</span>
+              </div>
             </div>
             <div class="field">
               <label>循环次数</label>
-              <input v-model.number="rounds" type="number" min="1" />
+              <div class="input-wrapper">
+                <input v-model.number="rounds" type="number" min="1" />
+                <span class="suffix">轮</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="field">
+            <label>循环间休息</label>
+            <div class="input-wrapper">
+              <input v-model.number="roundRestDuration" type="number" min="1" />
+              <span class="suffix">秒</span>
             </div>
           </div>
 
           <div class="field">
-            <label>动作列表</label>
-            <div
-              v-for="(exercise, index) in exercises"
-              :key="index"
-              class="exercise-row"
-            >
-              <input
-                v-model="exercise.name"
-                type="text"
-                placeholder="动作名称"
-                class="exercise-name"
-              />
-              <input
-                v-model.number="exercise.duration"
-                type="number"
-                min="1"
-                class="exercise-duration"
-              />
-              <span class="unit">秒</span>
-              <button
-                class="btn-remove"
-                @click="removeExercise(index)"
-                :disabled="exercises.length <= 1"
+            <label>动作列表 ({{ exercises.length }})</label>
+            <div class="exercises-list">
+              <div
+                v-for="(exercise, index) in exercises"
+                :key="index"
+                class="exercise-row"
               >
-                ✕
-              </button>
+                <div class="row-num">{{ index + 1 }}</div>
+                <input
+                  v-model="exercise.name"
+                  type="text"
+                  placeholder="动作名称"
+                  class="exercise-name"
+                />
+                <div class="duration-input">
+                  <input
+                    v-model.number="exercise.duration"
+                    type="number"
+                    min="1"
+                  />
+                  <span class="unit">秒</span>
+                </div>
+                <button
+                  class="btn-remove"
+                  @click="removeExercise(index)"
+                  :disabled="exercises.length <= 1"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path d="M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                </button>
+              </div>
             </div>
-            <button class="btn-add" @click="addExercise">+ 添加动作</button>
+            <button class="btn-add" @click="addExercise">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="margin-right: 6px;">
+                <path d="M12 5V19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              添加动作
+            </button>
           </div>
         </div>
       </div>
@@ -132,21 +163,35 @@ function handleSave() {
 .editor-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: var(--bg-overlay);
+  backdrop-filter: blur(4px);
   z-index: 100;
   display: flex;
   align-items: flex-end;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .editor-sheet {
   width: 100%;
-  max-height: 85vh;
-  background: #2a2a2a;
+  max-height: 90vh;
+  background: #1c1e24;
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   padding-bottom: calc(16px + var(--safe-area-bottom));
+  box-shadow: 0 -8px 40px rgba(0,0,0,0.5);
+  animation: slideUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
 }
 
 .editor-header {
@@ -154,134 +199,201 @@ function handleSave() {
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255,255,255,0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .editor-header h3 {
   font-size: 17px;
   font-weight: 700;
+  color: var(--text-primary);
 }
 
 .btn-text {
   background: none;
   color: var(--text-secondary);
-  font-size: 15px;
-  padding: 4px 8px;
+  font-size: 16px;
+  padding: 8px;
+  transition: color 0.2s;
+}
+
+.btn-text:active {
+  opacity: 0.7;
 }
 
 .btn-text.primary {
   color: var(--exercise-start);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .editor-body {
-  padding: 20px;
+  padding: 24px 20px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 24px;
 }
 
 .field {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .field label {
   font-size: 13px;
   color: var(--text-secondary);
   font-weight: 600;
+  margin-left: 2px;
 }
 
 .field input {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--bg-card);
+  border: 1px solid transparent;
   border-radius: var(--radius-sm);
   padding: 12px 14px;
   color: var(--text-primary);
   font-size: 16px;
+  transition: all 0.2s;
 }
 
-.field input::placeholder {
-  color: var(--text-muted);
+.field input:focus {
+  background: var(--bg-card-hover);
+  border-color: rgba(255, 81, 47, 0.3);
+}
+
+.field input.input-lg {
+  font-size: 18px;
+  font-weight: 600;
+  padding: 16px;
 }
 
 .field-row {
   display: flex;
-  gap: 12px;
+  gap: 16px;
 }
 
 .field-row .field {
   flex: 1;
 }
 
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-wrapper input {
+  width: 100%;
+  padding-right: 40px;
+}
+
+.suffix {
+  position: absolute;
+  right: 14px;
+  color: var(--text-muted);
+  font-size: 13px;
+  pointer-events: none;
+}
+
+.exercises-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .exercise-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
+  gap: 10px;
+  background: var(--bg-card);
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  transition: background 0.2s;
+}
+
+.exercise-row:focus-within {
+  background: var(--bg-card-hover);
+}
+
+.row-num {
+  width: 24px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
 }
 
 .exercise-name {
   flex: 1;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: var(--radius-sm);
-  padding: 10px 12px;
-  color: var(--text-primary);
-  font-size: 15px;
+  background: transparent !important;
+  padding: 8px 0 !important;
+  border: none !important;
+  font-size: 15px !important;
 }
 
-.exercise-name::placeholder {
+.duration-input {
+  position: relative;
+  width: 72px;
+  background: rgba(0,0,0,0.2);
+  border-radius: var(--radius-xs);
+  display: flex;
+  align-items: center;
+}
+
+.duration-input input {
+  width: 100%;
+  background: transparent !important;
+  border: none !important;
+  padding: 8px 24px 8px 8px !important;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.duration-input .unit {
+  position: absolute;
+  right: 8px;
+  font-size: 12px;
   color: var(--text-muted);
-}
-
-.exercise-duration {
-  width: 60px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: var(--radius-sm);
-  padding: 10px 8px;
-  color: var(--text-primary);
-  font-size: 15px;
-  text-align: center;
-}
-
-.unit {
-  font-size: 13px;
-  color: var(--text-muted);
-  flex-shrink: 0;
+  pointer-events: none;
 }
 
 .btn-remove {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: rgba(255, 59, 48, 0.15);
-  color: #ff3b30;
-  font-size: 14px;
+  color: var(--text-muted);
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
+  transition: all 0.2s;
+}
+
+.btn-remove:hover:not(:disabled) {
+  background: rgba(255, 69, 58, 0.1);
+  color: #ff453a;
 }
 
 .btn-remove:disabled {
-  opacity: 0.3;
-  pointer-events: none;
+  opacity: 0.2;
 }
 
 .btn-add {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.05);
   border: 1px dashed rgba(255, 255, 255, 0.15);
   border-radius: var(--radius-sm);
-  padding: 12px;
+  padding: 14px;
   color: var(--text-secondary);
-  font-size: 14px;
+  font-size: 15px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
 }
 
 .btn-add:active {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
+  transform: scale(0.99);
 }
 </style>

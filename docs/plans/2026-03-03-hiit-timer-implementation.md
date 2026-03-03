@@ -169,7 +169,7 @@
 
 **目标：** 弹窗式训练方案编辑器，支持新建和编辑。
 
-**文件：** `src/components/PlanEditor.vue`
+**文件：** `src/components/PlanEditor.vue`tas
 
 **Props：** visible、plan（可选，传入则为编辑模式）
 

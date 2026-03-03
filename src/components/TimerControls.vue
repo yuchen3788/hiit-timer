@@ -18,18 +18,31 @@ const emit = defineEmits<{
       class="btn-reset"
       :disabled="status === 'idle'"
       @click="emit('reset')"
+      aria-label="重置"
     >
-      ↺
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4 12C4 16.4183 7.58172 20 12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4C9.53614 4 7.33235 5.11309 5.86477 6.86477" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path d="M6 4V7H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
     </button>
 
     <button
       class="btn-main"
+      :class="{ paused: status === 'paused', running: status === 'running' }"
       @click="status === 'running' ? emit('pause') : emit('start')"
+      :aria-label="status === 'running' ? '暂停' : '开始'"
     >
-      {{ status === 'running' ? '⏸' : '▶' }}
+      <div class="icon-wrapper">
+        <svg v-if="status === 'running'" width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+          <rect x="6" y="4" width="4" height="16" rx="1" />
+          <rect x="14" y="4" width="4" height="16" rx="1" />
+        </svg>
+        <svg v-else width="32" height="32" viewBox="0 0 24 24" fill="currentColor" style="margin-left: 4px;">
+          <path d="M8 5V19L19 12L8 5Z" />
+        </svg>
+      </div>
     </button>
 
-    <!-- 占位保持居中 -->
     <div class="btn-placeholder" />
   </div>
 </template>
@@ -39,51 +52,75 @@ const emit = defineEmits<{
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 32px;
+  gap: 48px;
+  position: relative;
+  z-index: 20;
 }
 
 .btn-main {
-  width: 72px;
-  height: 72px;
+  width: 88px;
+  height: 88px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--exercise-start), var(--exercise-end));
-  color: #fff;
-  font-size: 28px;
+  background: var(--text-primary);
+  color: var(--bg-primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.15s ease;
-  box-shadow: 0 4px 20px rgba(255, 107, 53, 0.3);
+  transition: all var(--transition-normal);
+  box-shadow: 0 8px 24px rgba(255, 255, 255, 0.15);
+  position: relative;
+  overflow: hidden;
 }
 
 .btn-main:active {
-  transform: scale(0.9);
+  transform: scale(0.92);
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
 }
 
-.btn-reset {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--text-secondary);
-  font-size: 22px;
+.btn-main.running {
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: none;
+}
+
+.icon-wrapper {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.15s ease, opacity 0.2s ease;
+}
+
+.btn-reset {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-normal);
+  border: 1px solid transparent;
+}
+
+.btn-reset:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+
+.btn-reset:active {
+  transform: scale(0.92);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .btn-reset:disabled {
   opacity: 0.3;
   pointer-events: none;
-}
-
-.btn-reset:active {
-  transform: scale(0.9);
+  transform: scale(0.8);
 }
 
 .btn-placeholder {
-  width: 48px;
-  height: 48px;
+  width: 56px;
+  height: 56px;
 }
 </style>

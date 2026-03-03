@@ -25,7 +25,7 @@ const phaseLabel = computed(() =>
 
 <template>
   <div class="timer-display">
-    <svg class="progress-ring" viewBox="0 0 260 260">
+    <svg class="progress-ring" viewBox="0 0 280 280">
       <defs>
         <linearGradient id="exerciseGradient" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stop-color="var(--exercise-start)" />
@@ -35,31 +35,64 @@ const phaseLabel = computed(() =>
           <stop offset="0%" stop-color="var(--rest-start)" />
           <stop offset="100%" stop-color="var(--rest-end)" />
         </linearGradient>
+        <filter id="glow-exercise" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="4" result="coloredBlur" />
+          <feMerge>
+            <feMergeNode in="coloredBlur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+        <filter id="glow-rest" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="4" result="coloredBlur" />
+          <feMerge>
+            <feMergeNode in="coloredBlur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
       </defs>
-      <!-- 背景圈 -->
+      
+      <!-- 背景装饰 -->
       <circle
-        cx="130" cy="130" r="120"
+        cx="140" cy="140" r="130"
         fill="none"
-        stroke="rgba(255,255,255,0.08)"
-        stroke-width="8"
+        stroke="rgba(255,255,255,0.03)"
+        stroke-width="1"
+        stroke-dasharray="4 4"
       />
-      <!-- 进度圈 -->
+      
+      <!-- 轨道底色 -->
+      <circle
+        cx="140" cy="140" r="120"
+        fill="none"
+        stroke="rgba(255,255,255,0.06)"
+        stroke-width="12"
+        stroke-linecap="round"
+      />
+      
+      <!-- 进度条 -->
       <circle
         class="progress-circle"
-        cx="130" cy="130" r="120"
+        cx="140" cy="140" r="120"
         fill="none"
         :stroke="phase === 'exercise' ? 'url(#exerciseGradient)' : 'url(#restGradient)'"
-        stroke-width="8"
+        stroke-width="12"
         stroke-linecap="round"
         :stroke-dasharray="circumference"
         :stroke-dashoffset="dashOffset"
-        transform="rotate(-90 130 130)"
+        transform="rotate(-90 140 140)"
+        :filter="phase === 'exercise' ? 'url(#glow-exercise)' : 'url(#glow-rest)'"
       />
+      
+      <!-- 进度端点装饰 (可选) -->
     </svg>
 
     <div class="timer-content">
-      <div class="time" :class="phase">{{ formattedTime }}</div>
-      <div class="phase-label" :class="phase">{{ phaseLabel }}</div>
+      <div class="phase-badge" :class="phase">
+        {{ phaseLabel }}
+      </div>
+      <div class="time-wrapper">
+        <div class="time" :class="phase">{{ formattedTime }}</div>
+      </div>
       <div class="exercise-name">{{ exerciseName }}</div>
     </div>
   </div>
@@ -71,8 +104,8 @@ const phaseLabel = computed(() =>
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 260px;
-  height: 260px;
+  width: 280px;
+  height: 280px;
   margin: 0 auto;
 }
 
@@ -80,62 +113,86 @@ const phaseLabel = computed(() =>
   position: absolute;
   width: 100%;
   height: 100%;
+  overflow: visible;
 }
 
 .progress-circle {
-  transition: stroke-dashoffset 0.3s ease;
+  transition: stroke-dashoffset 0.1s linear, stroke 0.3s ease;
+  transform-origin: center;
 }
 
 .timer-content {
   position: relative;
   text-align: center;
-  z-index: 1;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 180px;
+}
+
+.phase-badge {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  margin-bottom: 8px;
+  transition: all var(--transition-normal);
+}
+
+.phase-badge.exercise {
+  background: rgba(255, 81, 47, 0.15);
+  color: var(--exercise-start);
+  border: 1px solid rgba(255, 81, 47, 0.3);
+}
+
+.phase-badge.rest {
+  background: rgba(67, 206, 162, 0.15);
+  color: var(--rest-start);
+  border: 1px solid rgba(67, 206, 162, 0.3);
+}
+
+.time-wrapper {
+  position: relative;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .time {
-  font-size: 64px;
+  font-size: 72px;
   font-weight: 800;
   line-height: 1;
+  font-variant-numeric: tabular-nums;
   letter-spacing: -2px;
+  text-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
 
 .time.exercise {
-  background: linear-gradient(135deg, var(--exercise-start), var(--exercise-end));
+  background: linear-gradient(135deg, #fff 0%, var(--exercise-start) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 
 .time.rest {
-  background: linear-gradient(135deg, var(--rest-start), var(--rest-end));
+  background: linear-gradient(135deg, #fff 0%, var(--rest-start) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.phase-label {
-  font-size: 16px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  margin-top: 4px;
-}
-
-.phase-label.exercise {
-  color: var(--exercise-start);
-}
-
-.phase-label.rest {
-  color: var(--rest-start);
 }
 
 .exercise-name {
-  font-size: 14px;
+  font-size: 16px;
   color: var(--text-secondary);
-  margin-top: 8px;
-  max-width: 160px;
+  font-weight: 500;
+  margin-top: 12px;
+  max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  padding: 0 8px;
 }
 </style>

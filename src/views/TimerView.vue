@@ -21,11 +21,6 @@ if (plan) {
   router.replace('/')
 }
 
-const roundInfo = computed(() => {
-  if (!timerStore.currentPlan) return ''
-  return `第 ${timerStore.currentRound} / ${timerStore.currentPlan.rounds} 轮`
-})
-
 const bgClass = computed(() => {
   if (timerStore.status === 'idle') return 'bg-idle'
   return timerStore.phase === 'exercise' ? 'bg-exercise' : 'bg-rest'
@@ -37,12 +32,23 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="timer-view" :class="bgClass">
+  <div class="timer-view">
+    <!-- 动态背景层 -->
+    <div class="bg-layer" :class="bgClass" />
+    
     <header class="top-bar">
-      <button class="btn-back" @click="router.push('/')">←</button>
+      <button class="btn-back" @click="router.push('/')">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M19 12H5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
       <div class="top-info">
         <h2 class="plan-name">{{ timerStore.currentPlan?.name }}</h2>
-        <span class="round-info">{{ roundInfo }}</span>
+        <div class="round-indicator">
+          <span class="round-count">{{ timerStore.currentRound }}</span>
+          <span class="round-total">/ {{ timerStore.currentPlan?.rounds }} 轮</span>
+        </div>
       </div>
       <div class="top-spacer" />
     </header>
@@ -79,74 +85,110 @@ onBeforeUnmount(() => {
   flex: 1;
   display: flex;
   flex-direction: column;
-  transition: background-color 0.5s ease;
+  position: relative;
+  overflow: hidden;
+  height: 100%;
 }
 
-.bg-idle {
+.bg-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: var(--bg-primary);
+  transition: background-color 0.8s ease;
+}
+
+.bg-layer.bg-idle {
   background-color: var(--bg-primary);
 }
 
-.bg-exercise {
-  background-color: #2a1510;
+.bg-layer.bg-exercise {
+  background-color: #1a0805; /* 深红褐色 */
+  background-image: radial-gradient(circle at 50% 30%, rgba(255, 81, 47, 0.15), transparent 70%);
 }
 
-.bg-rest {
-  background-color: #0a1a20;
+.bg-layer.bg-rest {
+  background-color: #051412; /* 深青色 */
+  background-image: radial-gradient(circle at 50% 30%, rgba(67, 206, 162, 0.1), transparent 70%);
 }
 
 .top-bar {
+  position: relative;
+  z-index: 10;
   display: flex;
   align-items: center;
-  padding: 12px 20px;
+  padding: 16px 20px;
 }
 
 .btn-back {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
   color: var(--text-primary);
-  font-size: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
 }
 
 .btn-back:active {
   transform: scale(0.9);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .top-info {
   flex: 1;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
 }
 
 .plan-name {
-  font-size: 17px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.round-indicator {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-feature-settings: "tnum";
+}
+
+.round-count {
+  color: var(--text-highlight);
   font-weight: 700;
 }
 
-.round-info {
-  font-size: 13px;
-  color: var(--text-secondary);
-}
-
 .top-spacer {
-  width: 40px;
+  width: 44px;
 }
 
 .timer-body {
+  position: relative;
+  z-index: 10;
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding-bottom: 40px;
 }
 
 .timer-footer {
+  position: relative;
+  z-index: 10;
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  padding: 0 20px 32px;
-  padding-bottom: calc(32px + var(--safe-area-bottom));
+  gap: 32px;
+  padding: 0 24px 48px;
+  padding-bottom: calc(48px + var(--safe-area-bottom));
+  background: linear-gradient(to top, var(--bg-primary) 0%, transparent 100%);
 }
 </style>

@@ -96,9 +96,9 @@ export const useTimerStore = defineStore('timer', () => {
       } else {
         // 当前轮最后一个动作完成
         if (currentRound.value < plan.rounds) {
-          // 还有下一轮，休息后进入下一轮第一个动作
+          // 还有下一轮，使用轮间休息时长
           phase.value = 'rest'
-          remainingSeconds.value = plan.restDuration
+          remainingSeconds.value = plan.roundRestDuration
           playPhaseChangeBeep()
           vibrate()
         } else {

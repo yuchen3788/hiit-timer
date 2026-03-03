@@ -51,7 +51,9 @@ export const usePlansStore = defineStore('plans', () => {
   function getPlanTotalDuration(plan: Plan): number {
     const exerciseTotal = plan.exercises.reduce((sum, e) => sum + e.duration, 0)
     const restTotal = plan.restDuration * Math.max(plan.exercises.length - 1, 0)
-    return (exerciseTotal + restTotal) * plan.rounds
+    const singleRound = exerciseTotal + restTotal
+    const roundRestTotal = plan.roundRestDuration * Math.max(plan.rounds - 1, 0)
+    return singleRound * plan.rounds + roundRestTotal
   }
 
   return { plans, addPlan, updatePlan, deletePlan, getPlan, getPlanTotalDuration }
