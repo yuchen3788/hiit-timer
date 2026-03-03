@@ -1,30 +1,53 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
+
+const isTimerPage = computed(() => route.name === 'timer')
 </script>
 
 <template>
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
-  </div>
-  <HelloWorld msg="Vite + Vue" />
+  <router-view />
+  <nav v-if="!isTimerPage" class="tab-bar">
+    <router-link to="/" class="tab-item" active-class="active">
+      <span class="tab-icon">📋</span>
+      <span class="tab-label">方案</span>
+    </router-link>
+  </nav>
 </template>
 
 <style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+.tab-bar {
+  display: flex;
+  justify-content: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 8px 0;
+  padding-bottom: calc(8px + var(--safe-area-bottom));
+  background: var(--bg-primary);
 }
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+
+.tab-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 24px;
+  text-decoration: none;
+  color: var(--text-muted);
+  transition: color 0.2s ease;
 }
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
+
+.tab-item.active {
+  color: var(--exercise-start);
+}
+
+.tab-icon {
+  font-size: 22px;
+}
+
+.tab-label {
+  font-size: 11px;
+  font-weight: 600;
 }
 </style>
