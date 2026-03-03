@@ -2,13 +2,31 @@ let audioCtx: AudioContext | null = null
 
 function getAudioContext(): AudioContext {
   if (!audioCtx) {
-    audioCtx = new AudioContext()
+    audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)()
   }
   return audioCtx
 }
 
-function playTone(frequency: number, duration: number, type: OscillatorType = 'sine') {
+// Must be called from a user gesture (click/touch) to unlock audio on iOS
+export function ensureAudioUnlocked(): void {
   const ctx = getAudioContext()
+  if (ctx.state === 'suspended') {
+    ctx.resume()
+  }
+  // Play a silent buffer to fully unlock on iOS
+  const buffer = ctx.createBuffer(1, 1, 22050)
+  const source = ctx.createBufferSource()
+  source.buffer = buffer
+  source.connect(ctx.destination)
+  source.start(0)
+}
+
+async function playTone(frequency: number, duration: number, type: OscillatorType = 'sine') {
+  const ctx = getAudioContext()
+  if (ctx.state === 'suspended') {
+    await ctx.resume()
+  }
+
   const oscillator = ctx.createOscillator()
   const gainNode = ctx.createGain()
 
@@ -28,8 +46,11 @@ export function playBeep() {
   playTone(800, 0.15)
 }
 
-export function playPhaseChangeBeep() {
+export async function playPhaseChangeBeep() {
   const ctx = getAudioContext()
+  if (ctx.state === 'suspended') {
+    await ctx.resume()
+  }
   const now = ctx.currentTime
   ;[0, 0.15, 0.3].forEach((delay) => {
     const osc = ctx.createOscillator()

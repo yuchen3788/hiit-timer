@@ -190,6 +190,11 @@ function formatDuration(seconds: number): string {
   overflow: hidden;
 }
 
+[data-theme="light"] .plan-card {
+  border-color: rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-sm);
+}
+
 .card-glow {
   position: absolute;
   top: 0;
@@ -205,6 +210,10 @@ function formatDuration(seconds: number): string {
   transform: scale(0.98);
   background: var(--bg-card-hover);
   border-color: rgba(255, 255, 255, 0.12);
+}
+
+[data-theme="light"] .plan-card:active {
+  border-color: rgba(0, 0, 0, 0.1);
 }
 
 .plan-card:active .card-glow {
@@ -244,6 +253,10 @@ function formatDuration(seconds: number): string {
   font-weight: 500;
 }
 
+[data-theme="light"] .meta-tag {
+  background: rgba(0, 0, 0, 0.04);
+}
+
 .meta-tag.duration {
   color: var(--rest-start);
   background: rgba(67, 206, 162, 0.1);
@@ -270,9 +283,17 @@ function formatDuration(seconds: number): string {
   border: 1px solid transparent;
 }
 
+[data-theme="light"] .btn-icon {
+  background: rgba(0, 0, 0, 0.04);
+}
+
 .btn-icon:hover {
   background: rgba(255, 255, 255, 0.1);
   color: var(--text-primary);
+}
+
+[data-theme="light"] .btn-icon:hover {
+  background: rgba(0, 0, 0, 0.08);
 }
 
 .btn-icon:active {
@@ -307,6 +328,10 @@ function formatDuration(seconds: number): string {
   align-items: center;
   justify-content: center;
   margin-bottom: 24px;
+}
+
+[data-theme="light"] .empty-icon-wrapper {
+  background: radial-gradient(circle, rgba(0,0,0,0.03) 0%, transparent 70%);
 }
 
 .empty-icon {

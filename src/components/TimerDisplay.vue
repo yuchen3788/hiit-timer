@@ -43,16 +43,13 @@ const phaseLabel = computed(() =>
 }
 
 .time-value {
-  font-size: 28vw; /* 使用视口宽度单位，确保足够大 */
+  font-size: 28vw;
   font-weight: 900;
   line-height: 1;
   letter-spacing: -0.05em;
   font-variant-numeric: tabular-nums;
-  color: #FFFFFF;
+  color: var(--text-primary);
   text-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-  /* 确保数字不会过大或过小 */
-  min-fontSize: 120px;
-  max-fontSize: 240px;
 }
 
 /* 在大屏幕限制最大字体 */
@@ -68,10 +65,14 @@ const phaseLabel = computed(() =>
   text-transform: uppercase;
   letter-spacing: 4px;
   opacity: 0.8;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--text-primary);
   padding: 8px 16px;
   background: rgba(255, 255, 255, 0.1);
   border-radius: 999px;
   backdrop-filter: blur(10px);
+}
+
+[data-theme="light"] .phase-label {
+  background: rgba(0, 0, 0, 0.06);
 }
 </style>

@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { usePlansStore } from '@/stores/plans'
 import { useTimerStore } from '@/stores/timer'
 import { useThemeStore } from '@/stores/theme'
+import { ensureAudioUnlocked } from '@/utils/audio'
 import TimerDisplay from '@/components/TimerDisplay.vue'
 import TimerControls from '@/components/TimerControls.vue'
 import ExerciseProgress from '@/components/ExerciseProgress.vue'
@@ -132,7 +133,7 @@ onBeforeUnmount(() => {
 
       <TimerControls
         :status="timerStore.status"
-        @start="timerStore.start()"
+        @start="ensureAudioUnlocked(); timerStore.start()"
         @pause="timerStore.pause()"
         @reset="timerStore.reset()"
       />

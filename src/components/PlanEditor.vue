@@ -179,7 +179,7 @@ function handleSave() {
 .editor-sheet {
   width: 100%;
   max-height: 90vh;
-  background: #1c1e24;
+  background: var(--bg-secondary);
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   display: flex;
   flex-direction: column;
@@ -187,6 +187,10 @@ function handleSave() {
   padding-bottom: calc(16px + var(--safe-area-bottom));
   box-shadow: 0 -8px 40px rgba(0,0,0,0.5);
   animation: slideUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+[data-theme="light"] .editor-sheet {
+  box-shadow: 0 -8px 40px rgba(0,0,0,0.15);
 }
 
 @keyframes slideUp {
@@ -201,6 +205,11 @@ function handleSave() {
   padding: 16px 20px;
   background: rgba(255,255,255,0.03);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="light"] .editor-header {
+  background: rgba(0,0,0,0.02);
+  border-bottom-color: rgba(0, 0, 0, 0.08);
 }
 
 .editor-header h3 {
@@ -262,6 +271,16 @@ function handleSave() {
   border-color: rgba(255, 81, 47, 0.3);
 }
 
+[data-theme="light"] .field input {
+  background: var(--bg-input);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .field input:focus {
+  background: #fff;
+  border-color: var(--exercise-start);
+}
+
 .field input.input-lg {
   font-size: 18px;
   font-weight: 600;
@@ -314,6 +333,11 @@ function handleSave() {
 
 .exercise-row:focus-within {
   background: var(--bg-card-hover);
+}
+
+[data-theme="light"] .exercise-row {
+  background: var(--bg-input);
+  border: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .row-num {
@@ -369,7 +393,8 @@ function handleSave() {
   transition: all 0.2s;
 }
 
-.btn-remove:hover:not(:disabled) {
+.btn-remove:hover:not(:disabled),
+.btn-remove:active:not(:disabled) {
   background: rgba(255, 69, 58, 0.1);
   color: #ff453a;
 }
@@ -390,6 +415,11 @@ function handleSave() {
   align-items: center;
   justify-content: center;
   transition: all 0.2s;
+}
+
+[data-theme="light"] .btn-add {
+  background: var(--bg-input);
+  border-color: rgba(0, 0, 0, 0.15);
 }
 
 .btn-add:active {
