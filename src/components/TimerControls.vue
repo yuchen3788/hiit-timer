@@ -84,6 +84,11 @@ const emit = defineEmits<{
   box-shadow: none;
 }
 
+/* 浅色模式运行中按钮边框 */
+[data-theme="light"] .btn-main.running {
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
 .icon-wrapper {
   display: flex;
   align-items: center;
@@ -103,14 +108,29 @@ const emit = defineEmits<{
   border: 1px solid transparent;
 }
 
+/* 浅色模式重置按钮 */
+[data-theme="light"] .btn-reset {
+  background: rgba(0, 0, 0, 0.05);
+}
+
 .btn-reset:hover {
   background: rgba(255, 255, 255, 0.1);
   color: var(--text-primary);
 }
 
+/* 浅色模式重置按钮悬停 */
+[data-theme="light"] .btn-reset:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
 .btn-reset:active {
   transform: scale(0.92);
   background: rgba(255, 255, 255, 0.08);
+}
+
+/* 浅色模式重置按钮按下 */
+[data-theme="light"] .btn-reset:active {
+  background: rgba(0, 0, 0, 0.1);
 }
 
 .btn-reset:disabled {

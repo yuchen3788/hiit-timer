@@ -46,7 +46,7 @@ onMounted(() => {
 <template>
   <div class="completion-view">
     <div class="content-wrapper">
-      <div class="medal-icon">🥇</div>
+      <div class="medal-icon">💪</div>
       
       <h1 class="title">太棒了！</h1>
       <p class="subtitle">你刚刚完成了</p>

@@ -37,7 +37,7 @@ onMounted(() => {
 
 <template>
   <div class="exercise-progress-wrapper">
-    <!-- 渐变遮罩指示器 -->
+/* 渐变遮罩指示器 */
     <div class="fade-mask left"></div>
     <div class="fade-mask right"></div>
     
@@ -67,7 +67,7 @@ onMounted(() => {
               'pulse-exercise': phase === 'exercise' && index === currentIndex,
               'pulse-rest': phase === 'rest' && index === currentIndex 
             }"
-          />
+          ></div>
         </div>
         
         <span class="name">{{ exercise.name }}</span>
@@ -158,7 +158,7 @@ onMounted(() => {
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.2);
+  background: var(--text-muted);
   transition: all 0.3s ease;
 }
 
