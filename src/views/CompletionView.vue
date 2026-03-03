@@ -3,6 +3,7 @@ import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useTimerStore } from '@/stores/timer'
 import { usePlansStore } from '@/stores/plans'
+import { getRandomQuote } from '@/utils/quotes'
 
 const router = useRouter()
 const timerStore = useTimerStore()
@@ -23,6 +24,7 @@ const formattedDuration = computed(() => {
 })
 
 const exerciseCount = computed(() => plan.exercises.length * plan.rounds)
+const quote = getRandomQuote()
 
 function goHome() {
   timerStore.reset()
@@ -70,7 +72,7 @@ onMounted(() => {
       </div>
 
       <p class="motivational-quote">
-        "坚持就是胜利，今天的汗水是明天的勋章！"
+        "{{ quote }}"
       </p>
     </div>
 

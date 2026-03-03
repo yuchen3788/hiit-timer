@@ -37,10 +37,6 @@ onMounted(() => {
 
 <template>
   <div class="exercise-progress-wrapper">
-/* 渐变遮罩指示器 */
-    <div class="fade-mask left"></div>
-    <div class="fade-mask right"></div>
-    
     <div class="exercise-progress" ref="containerRef">
       <div
         v-for="(exercise, index) in exercises"
@@ -84,24 +80,6 @@ onMounted(() => {
   overflow: hidden;
 }
 
-.fade-mask {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 32px;
-  z-index: 2;
-  pointer-events: none;
-}
-
-.fade-mask.left {
-  left: 0;
-  background: linear-gradient(to right, var(--bg-primary), transparent);
-}
-
-.fade-mask.right {
-  right: 0;
-  background: linear-gradient(to left, var(--bg-primary), transparent);
-}
 
 .exercise-progress {
   display: flex;

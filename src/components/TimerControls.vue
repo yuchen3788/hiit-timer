@@ -61,32 +61,41 @@ const emit = defineEmits<{
   width: 88px;
   height: 88px;
   border-radius: 50%;
-  background: var(--text-primary);
-  color: var(--bg-primary);
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all var(--transition-normal);
-  box-shadow: 0 8px 24px rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   position: relative;
   overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .btn-main:active {
   transform: scale(0.92);
-  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.3);
 }
 
 .btn-main.running {
-  background: var(--bg-card);
-  color: var(--text-primary);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: none;
 }
 
-/* 浅色模式运行中按钮边框 */
+/* 浅色模式适配 */
+[data-theme="light"] .btn-main {
+  background: rgba(255, 255, 255, 0.6);
+  color: #333;
+  border-color: rgba(0, 0, 0, 0.05);
+}
+
 [data-theme="light"] .btn-main.running {
-  border-color: rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.3);
+  color: #333;
 }
 
 .icon-wrapper {
@@ -99,38 +108,42 @@ const emit = defineEmits<{
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  color: rgba(255, 255, 255, 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all var(--transition-normal);
-  border: 1px solid transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* 浅色模式重置按钮 */
 [data-theme="light"] .btn-reset {
-  background: rgba(0, 0, 0, 0.05);
+  background: rgba(255, 255, 255, 0.3);
+  color: rgba(0, 0, 0, 0.6);
+  border-color: rgba(0, 0, 0, 0.05);
 }
 
 .btn-reset:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
 }
 
 /* 浅色模式重置按钮悬停 */
 [data-theme="light"] .btn-reset:hover {
-  background: rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.5);
+  color: #000;
 }
 
 .btn-reset:active {
   transform: scale(0.92);
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.25);
 }
 
 /* 浅色模式重置按钮按下 */
 [data-theme="light"] .btn-reset:active {
-  background: rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.6);
 }
 
 .btn-reset:disabled {

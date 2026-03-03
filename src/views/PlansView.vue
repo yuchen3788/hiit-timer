@@ -138,9 +138,7 @@ function formatDuration(seconds: number): string {
 .top-bar h1 {
   font-size: 32px;
   font-weight: 800;
-  background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.7) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--text-primary);
   letter-spacing: -0.5px;
 }
 

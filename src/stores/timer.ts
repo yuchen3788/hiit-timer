@@ -119,20 +119,38 @@ export const useTimerStore = defineStore('timer', () => {
 
     if (phase.value === 'exercise') {
       if (currentExerciseIndex.value < exercises.length - 1) {
+        // 同一轮次内，切换到下一个动作前的休息
         phase.value = 'rest'
         startNextPhase(plan.restDuration)
       } else {
+        // 当前轮次结束
         if (currentRound.value < plan.rounds) {
+          // 还有下一轮，进入大休息
           phase.value = 'rest'
           startNextPhase(plan.roundRestDuration)
         } else {
+          // 全部结束
           complete()
         }
       }
     } else {
+      // 休息结束，进入下一个动作或下一轮
+      // 注意：这里的逻辑有问题，应该在进入 rest 之前就更新 index 还是在 rest 之后？
+      // 通常是在 rest 结束时，准备开始下一个 exercise
+      
+      // 检查是否需要进入下一轮
+      // 如果当前是最后一个动作后的休息（roundRest），那么索引重置，轮次+1
+      // 如果是普通动作间的休息，索引+1
+      
+      // 我们需要知道刚才结束的是哪个动作
+      // 但由于 phase 只是 string，我们最好在进入 rest 时不要改变 index
+      // 现在的逻辑是：
+      // exercise(index=0) -> rest(index=0) -> exercise(index=1)
+      
       if (currentExerciseIndex.value < exercises.length - 1) {
         currentExerciseIndex.value++
       } else {
+        // 只有当我们在最后一项的休息结束时，才进入下一轮
         currentRound.value++
         currentExerciseIndex.value = 0
       }
@@ -143,9 +161,12 @@ export const useTimerStore = defineStore('timer', () => {
 
   function complete() {
     cancelFrame()
-    status.value = 'idle'
+    status.value = 'completed'
     playCompleteBeep()
-    vibrate([200, 100, 200, 100, 400])
+    // 震动反馈
+    if (navigator.vibrate) {
+      navigator.vibrate([200, 100, 200, 100, 400])
+    }
   }
 
   return {

@@ -31,6 +31,50 @@ const bgClass = computed(() => {
   return timerStore.phase === 'exercise' ? 'bg-exercise' : 'bg-rest'
 })
 
+const bgStyle = computed(() => {
+  if (timerStore.status === 'idle') return {}
+  
+  const progress = 100 - timerStore.progress // 0 to 100
+  
+  if (timerStore.phase === 'exercise') {
+    // 运动阶段: 深红 -> 浅红/橙红
+    // 起始: #FF3333 (255, 51, 51)
+    // 结束: #FF8C42 (255, 140, 66)
+    // 混合比例
+    const p = progress / 100
+    const r = Math.round(255 + (255 - 255) * p)
+    const g = Math.round(51 + (140 - 51) * p)
+    const b = Math.round(51 + (66 - 51) * p)
+    
+    // 对于浅色模式, 使用更柔和的颜色
+    if (themeStore.theme === 'light') {
+       // 浅色模式: 浅粉 -> 浅紫
+       // 起始: #FFF0F5 (255, 240, 245)
+       // 结束: #E040FB (224, 64, 251) 
+       // 注意: 这里我们可能需要更精细的控制，或者简单的透明度变化
+       // 暂时复用CSS变量控制的基础色，通过Overlay实现渐变
+       return {}
+    }
+    
+    return {
+      background: `linear-gradient(135deg, rgb(139, 0, 0) 0%, rgb(${r}, ${g}, ${b}) 100%)`
+    }
+  } else {
+    // 休息阶段: 深青 -> 浅青/蓝
+    const p = progress / 100
+    // 起始: #00E5FF (0, 229, 255)
+    // 结束: #2979FF (41, 121, 255)
+    
+    const r = Math.round(0 + (41 - 0) * p)
+    const g = Math.round(229 + (121 - 229) * p)
+    const b = Math.round(255 + (255 - 255) * p)
+    
+    return {
+      background: `linear-gradient(135deg, rgb(0, 50, 50) 0%, rgb(${r}, ${g}, ${b}) 100%)`
+    }
+  }
+})
+
 // 监听状态变化，完成后跳转
 watch(() => timerStore.status, (newStatus) => {
   if (newStatus === 'completed') {
@@ -50,7 +94,7 @@ onBeforeUnmount(() => {
 <template>
   <div class="timer-view">
     <!-- 动态背景层 -->
-    <div class="bg-layer" :class="[bgClass, themeStore.theme]" />
+    <div class="bg-layer" :class="[bgClass, themeStore.theme]" :style="bgStyle" />
     
     <header class="top-bar">
       <button class="btn-back" @click="router.push('/')">
