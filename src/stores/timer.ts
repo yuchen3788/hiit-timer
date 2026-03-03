@@ -2,10 +2,10 @@ import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import type { Plan, TimerStatus, TimerPhase } from '@/types'
 import {
-  playCountdownBeep,
   playPhaseChangeBeep,
   playCompleteBeep,
   vibrate,
+  playCountdownBeep,
 } from '@/utils/audio'
 
 export const useTimerStore = defineStore('timer', () => {
@@ -17,8 +17,8 @@ export const useTimerStore = defineStore('timer', () => {
   const phase = ref<TimerPhase>('exercise')
 
   let animFrameId: number | null = null
+  let intervalId: ReturnType<typeof setInterval> | null = null
   let targetTime = 0
-  let lastBeepedAt = 0
 
   const currentExercise = computed(() => {
     if (!currentPlan.value) return null
@@ -49,18 +49,17 @@ export const useTimerStore = defineStore('timer', () => {
     if (!currentPlan.value || status.value === 'running') return
     status.value = 'running'
     targetTime = Date.now() + remainingSeconds.value * 1000
-    lastBeepedAt = remainingSeconds.value
-    scheduleFrame()
+    startTicking()
   }
 
   function pause() {
     if (status.value !== 'running') return
     status.value = 'paused'
-    cancelFrame()
+    stopTicking()
   }
 
   function reset() {
-    cancelFrame()
+    stopTicking()
     status.value = 'idle'
     if (currentPlan.value) {
       currentRound.value = 1
@@ -72,7 +71,8 @@ export const useTimerStore = defineStore('timer', () => {
 
   function tick() {
     const now = Date.now()
-    const newRemaining = Math.ceil((targetTime - now) / 1000)
+    const diff = targetTime - now
+    const newRemaining = Math.max(0, Math.ceil(diff / 1000))
 
     if (newRemaining <= 0) {
       remainingSeconds.value = 0
@@ -81,21 +81,31 @@ export const useTimerStore = defineStore('timer', () => {
     }
 
     if (newRemaining !== remainingSeconds.value) {
-      remainingSeconds.value = newRemaining
-      if (newRemaining <= 3 && newRemaining !== lastBeepedAt) {
-        lastBeepedAt = newRemaining
+      if (newRemaining >= 1) {
         playCountdownBeep()
       }
+      remainingSeconds.value = newRemaining
     }
-
-    scheduleFrame()
   }
 
-  function scheduleFrame() {
-    animFrameId = requestAnimationFrame(tick)
+  function updateDisplay() {
+    tick()
+    if (status.value === 'running') {
+      animFrameId = requestAnimationFrame(updateDisplay)
+    }
   }
 
-  function cancelFrame() {
+  function startTicking() {
+    stopTicking()
+    intervalId = setInterval(tick, 200)
+    animFrameId = requestAnimationFrame(updateDisplay)
+  }
+
+  function stopTicking() {
+    if (intervalId !== null) {
+      clearInterval(intervalId)
+      intervalId = null
+    }
     if (animFrameId !== null) {
       cancelAnimationFrame(animFrameId)
       animFrameId = null
@@ -105,10 +115,8 @@ export const useTimerStore = defineStore('timer', () => {
   function startNextPhase(duration: number) {
     remainingSeconds.value = duration
     targetTime = Date.now() + duration * 1000
-    lastBeepedAt = duration
     playPhaseChangeBeep()
     vibrate()
-    scheduleFrame()
   }
 
   function advancePhase() {
@@ -160,7 +168,7 @@ export const useTimerStore = defineStore('timer', () => {
   }
 
   function complete() {
-    cancelFrame()
+    stopTicking()
     status.value = 'completed'
     playCompleteBeep()
     // 震动反馈

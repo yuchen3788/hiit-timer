@@ -4,16 +4,17 @@ function getAudioContext(): AudioContext {
   if (!audioCtx) {
     audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)()
   }
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume()
+  }
   return audioCtx
 }
 
-// Must be called from a user gesture (click/touch) to unlock audio on iOS
 export function ensureAudioUnlocked(): void {
   const ctx = getAudioContext()
   if (ctx.state === 'suspended') {
     ctx.resume()
   }
-  // Play a silent buffer to fully unlock on iOS
   const buffer = ctx.createBuffer(1, 1, 22050)
   const source = ctx.createBufferSource()
   source.buffer = buffer
@@ -21,36 +22,31 @@ export function ensureAudioUnlocked(): void {
   source.start(0)
 }
 
-async function playTone(frequency: number, duration: number, type: OscillatorType = 'sine') {
+function playToneAt(frequency: number, duration: number, type: OscillatorType = 'sine', when?: number) {
   const ctx = getAudioContext()
-  if (ctx.state === 'suspended') {
-    await ctx.resume()
-  }
+  const startTime = when ?? ctx.currentTime
 
   const oscillator = ctx.createOscillator()
   const gainNode = ctx.createGain()
 
   oscillator.type = type
-  oscillator.frequency.setValueAtTime(frequency, ctx.currentTime)
-  gainNode.gain.setValueAtTime(0.5, ctx.currentTime)
-  gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration)
+  oscillator.frequency.setValueAtTime(frequency, startTime)
+  gainNode.gain.setValueAtTime(0.5, startTime)
+  gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + duration)
 
   oscillator.connect(gainNode)
   gainNode.connect(ctx.destination)
 
-  oscillator.start(ctx.currentTime)
-  oscillator.stop(ctx.currentTime + duration)
+  oscillator.start(startTime)
+  oscillator.stop(startTime + duration)
 }
 
 export function playBeep() {
-  playTone(800, 0.15)
+  playToneAt(800, 0.15)
 }
 
-export async function playPhaseChangeBeep() {
+export function playPhaseChangeBeep() {
   const ctx = getAudioContext()
-  if (ctx.state === 'suspended') {
-    await ctx.resume()
-  }
   const now = ctx.currentTime
   ;[0, 0.15, 0.3].forEach((delay) => {
     const osc = ctx.createOscillator()
@@ -67,12 +63,13 @@ export async function playPhaseChangeBeep() {
 }
 
 export function playCompleteBeep() {
-  playTone(1200, 0.8, 'sine')
+  playToneAt(1200, 0.8, 'sine')
 }
 
 export function playCountdownBeep() {
-  playTone(600, 0.1)
+  playToneAt(600, 0.1)
 }
+
 
 export function vibrate(pattern: number | number[] = 200) {
   if (navigator.vibrate) {
