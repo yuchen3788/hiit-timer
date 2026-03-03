@@ -16,7 +16,9 @@ export const useTimerStore = defineStore('timer', () => {
   const remainingSeconds = ref(0)
   const phase = ref<TimerPhase>('exercise')
 
-  let intervalId: ReturnType<typeof setInterval> | null = null
+  let animFrameId: number | null = null
+  let targetTime = 0
+  let lastBeepedAt = 0
 
   const currentExercise = computed(() => {
     if (!currentPlan.value) return null
@@ -46,17 +48,19 @@ export const useTimerStore = defineStore('timer', () => {
   function start() {
     if (!currentPlan.value || status.value === 'running') return
     status.value = 'running'
-    intervalId = setInterval(tick, 1000)
+    targetTime = Date.now() + remainingSeconds.value * 1000
+    lastBeepedAt = remainingSeconds.value
+    scheduleFrame()
   }
 
   function pause() {
     if (status.value !== 'running') return
     status.value = 'paused'
-    clearTimer()
+    cancelFrame()
   }
 
   function reset() {
-    clearTimer()
+    cancelFrame()
     status.value = 'idle'
     if (currentPlan.value) {
       currentRound.value = 1
@@ -67,16 +71,44 @@ export const useTimerStore = defineStore('timer', () => {
   }
 
   function tick() {
-    if (remainingSeconds.value <= 1) {
+    const now = Date.now()
+    const newRemaining = Math.ceil((targetTime - now) / 1000)
+
+    if (newRemaining <= 0) {
+      remainingSeconds.value = 0
       advancePhase()
       return
     }
 
-    remainingSeconds.value--
-
-    if (remainingSeconds.value <= 3) {
-      playCountdownBeep()
+    if (newRemaining !== remainingSeconds.value) {
+      remainingSeconds.value = newRemaining
+      if (newRemaining <= 3 && newRemaining !== lastBeepedAt) {
+        lastBeepedAt = newRemaining
+        playCountdownBeep()
+      }
     }
+
+    scheduleFrame()
+  }
+
+  function scheduleFrame() {
+    animFrameId = requestAnimationFrame(tick)
+  }
+
+  function cancelFrame() {
+    if (animFrameId !== null) {
+      cancelAnimationFrame(animFrameId)
+      animFrameId = null
+    }
+  }
+
+  function startNextPhase(duration: number) {
+    remainingSeconds.value = duration
+    targetTime = Date.now() + duration * 1000
+    lastBeepedAt = duration
+    playPhaseChangeBeep()
+    vibrate()
+    scheduleFrame()
   }
 
   function advancePhase() {
@@ -86,54 +118,34 @@ export const useTimerStore = defineStore('timer', () => {
     const exercises = plan.exercises
 
     if (phase.value === 'exercise') {
-      // 运动结束 → 检查是否需要休息
       if (currentExerciseIndex.value < exercises.length - 1) {
-        // 还有下一个动作，进入休息
         phase.value = 'rest'
-        remainingSeconds.value = plan.restDuration
-        playPhaseChangeBeep()
-        vibrate()
+        startNextPhase(plan.restDuration)
       } else {
-        // 当前轮最后一个动作完成
         if (currentRound.value < plan.rounds) {
-          // 还有下一轮，使用轮间休息时长
           phase.value = 'rest'
-          remainingSeconds.value = plan.roundRestDuration
-          playPhaseChangeBeep()
-          vibrate()
+          startNextPhase(plan.roundRestDuration)
         } else {
-          // 全部完成
           complete()
         }
       }
     } else {
-      // 休息结束 → 进入下一个动作
       if (currentExerciseIndex.value < exercises.length - 1) {
         currentExerciseIndex.value++
       } else {
-        // 进入下一轮
         currentRound.value++
         currentExerciseIndex.value = 0
       }
       phase.value = 'exercise'
-      remainingSeconds.value = exercises[currentExerciseIndex.value]!.duration
-      playPhaseChangeBeep()
-      vibrate()
+      startNextPhase(exercises[currentExerciseIndex.value]!.duration)
     }
   }
 
   function complete() {
-    clearTimer()
+    cancelFrame()
     status.value = 'idle'
     playCompleteBeep()
     vibrate([200, 100, 200, 100, 400])
-  }
-
-  function clearTimer() {
-    if (intervalId !== null) {
-      clearInterval(intervalId)
-      intervalId = null
-    }
   }
 
   return {

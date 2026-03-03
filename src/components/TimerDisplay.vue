@@ -16,7 +16,7 @@ const formattedTime = computed(() => {
 })
 
 const circumference = 2 * Math.PI * 120
-const dashOffset = computed(() => circumference * (1 - props.progress))
+const dashOffset = computed(() => circumference * props.progress)
 
 const phaseLabel = computed(() =>
   props.phase === 'exercise' ? '运动' : '休息'
@@ -36,16 +36,18 @@ const phaseLabel = computed(() =>
           <stop offset="100%" stop-color="var(--rest-end)" />
         </linearGradient>
         <filter id="glow-exercise" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="4" result="coloredBlur" />
+          <feGaussianBlur stdDeviation="6" result="coloredBlur" />
+          <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0.5 0" in="coloredBlur" result="softGlow"/>
           <feMerge>
-            <feMergeNode in="coloredBlur" />
+            <feMergeNode in="softGlow" />
             <feMergeNode in="SourceGraphic" />
           </feMerge>
         </filter>
         <filter id="glow-rest" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="4" result="coloredBlur" />
+          <feGaussianBlur stdDeviation="6" result="coloredBlur" />
+          <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0.5 0" in="coloredBlur" result="softGlow"/>
           <feMerge>
-            <feMergeNode in="coloredBlur" />
+            <feMergeNode in="softGlow" />
             <feMergeNode in="SourceGraphic" />
           </feMerge>
         </filter>
@@ -75,15 +77,12 @@ const phaseLabel = computed(() =>
         cx="140" cy="140" r="120"
         fill="none"
         :stroke="phase === 'exercise' ? 'url(#exerciseGradient)' : 'url(#restGradient)'"
-        stroke-width="12"
+        stroke-width="14"
         stroke-linecap="round"
         :stroke-dasharray="circumference"
         :stroke-dashoffset="dashOffset"
-        transform="rotate(-90 140 140)"
         :filter="phase === 'exercise' ? 'url(#glow-exercise)' : 'url(#glow-rest)'"
       />
-      
-      <!-- 进度端点装饰 (可选) -->
     </svg>
 
     <div class="timer-content">
@@ -114,11 +113,11 @@ const phaseLabel = computed(() =>
   width: 100%;
   height: 100%;
   overflow: visible;
+  transform: rotate(-90deg); /* 旋转整个 SVG 容器，避免内部元素坐标计算问题 */
 }
 
 .progress-circle {
   transition: stroke-dashoffset 0.1s linear, stroke 0.3s ease;
-  transform-origin: center;
 }
 
 .timer-content {

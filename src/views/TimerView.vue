@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount } from 'vue'
+import { computed, onBeforeUnmount, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { usePlansStore } from '@/stores/plans'
 import { useTimerStore } from '@/stores/timer'
+import { useThemeStore } from '@/stores/theme'
 import TimerDisplay from '@/components/TimerDisplay.vue'
 import TimerControls from '@/components/TimerControls.vue'
 import ExerciseProgress from '@/components/ExerciseProgress.vue'
@@ -11,12 +12,16 @@ const route = useRoute()
 const router = useRouter()
 const plansStore = usePlansStore()
 const timerStore = useTimerStore()
+const themeStore = useThemeStore()
 
 const planId = route.params.planId as string
 const plan = plansStore.getPlan(planId)
 
 if (plan) {
-  timerStore.loadPlan(plan)
+  // 如果当前已经在运行同一个计划，则不重新加载
+  if (timerStore.currentPlan?.id !== plan.id) {
+    timerStore.loadPlan(plan)
+  }
 } else {
   router.replace('/')
 }
@@ -26,15 +31,26 @@ const bgClass = computed(() => {
   return timerStore.phase === 'exercise' ? 'bg-exercise' : 'bg-rest'
 })
 
+// 监听状态变化，完成后跳转
+watch(() => timerStore.status, (newStatus) => {
+  if (newStatus === 'completed') {
+    router.replace('/completion')
+  }
+})
+
 onBeforeUnmount(() => {
-  timerStore.reset()
+  // 只有当不是跳转到完成页时，才重置计时器
+  // 这样完成页可以获取到当前的 plan 信息用于展示
+  if (timerStore.status !== 'completed') {
+    timerStore.reset()
+  }
 })
 </script>
 
 <template>
   <div class="timer-view">
     <!-- 动态背景层 -->
-    <div class="bg-layer" :class="bgClass" />
+    <div class="bg-layer" :class="[bgClass, themeStore.theme]" />
     
     <header class="top-bar">
       <button class="btn-back" @click="router.push('/')">
@@ -102,14 +118,26 @@ onBeforeUnmount(() => {
   background-color: var(--bg-primary);
 }
 
+/* 深色模式背景 (默认) */
 .bg-layer.bg-exercise {
-  background-color: #1a0805; /* 深红褐色 */
+  background-color: #1a0805;
   background-image: radial-gradient(circle at 50% 30%, rgba(255, 81, 47, 0.15), transparent 70%);
 }
 
 .bg-layer.bg-rest {
-  background-color: #051412; /* 深青色 */
+  background-color: #051412;
   background-image: radial-gradient(circle at 50% 30%, rgba(67, 206, 162, 0.1), transparent 70%);
+}
+
+/* 浅色模式背景 (覆盖) */
+.bg-layer.light.bg-exercise {
+  background-color: #FFF0F5; /* 浅粉底色 */
+  background-image: radial-gradient(circle at 50% 30%, rgba(224, 64, 251, 0.1), transparent 70%);
+}
+
+.bg-layer.light.bg-rest {
+  background-color: #E0F7FA; /* 浅青底色 */
+  background-image: radial-gradient(circle at 50% 30%, rgba(0, 191, 165, 0.1), transparent 70%);
 }
 
 .top-bar {
@@ -133,9 +161,18 @@ onBeforeUnmount(() => {
   backdrop-filter: blur(10px);
 }
 
+/* 浅色模式下的返回按钮 */
+[data-theme="light"] .btn-back {
+  background: rgba(0, 0, 0, 0.05);
+}
+
 .btn-back:active {
   transform: scale(0.9);
   background: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="light"] .btn-back:active {
+  background: rgba(0, 0, 0, 0.1);
 }
 
 .top-info {
@@ -151,6 +188,7 @@ onBeforeUnmount(() => {
   font-size: 16px;
   font-weight: 600;
   letter-spacing: 0.5px;
+  color: var(--text-primary);
 }
 
 .round-indicator {

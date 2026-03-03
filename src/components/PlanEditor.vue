@@ -335,7 +335,7 @@ function handleSave() {
 .duration-input {
   position: relative;
   width: 72px;
-  background: rgba(0,0,0,0.2);
+  background: var(--bg-input);
   border-radius: var(--radius-xs);
   display: flex;
   align-items: center;
@@ -379,8 +379,8 @@ function handleSave() {
 }
 
 .btn-add {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px dashed rgba(255, 255, 255, 0.15);
+  background: var(--bg-card);
+  border: 1px dashed rgba(128, 128, 128, 0.3);
   border-radius: var(--radius-sm);
   padding: 14px;
   color: var(--text-secondary);
@@ -393,7 +393,7 @@ function handleSave() {
 }
 
 .btn-add:active {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--bg-card-hover);
   transform: scale(0.99);
 }
 </style>

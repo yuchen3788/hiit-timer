@@ -1,42 +1,116 @@
 <script setup lang="ts">
+import { onMounted, watch, ref, nextTick } from 'vue'
 import type { Exercise, TimerPhase } from '@/types'
 
-defineProps<{
+const props = defineProps<{
   exercises: Exercise[]
   currentIndex: number
   phase: TimerPhase
 }>()
+
+const containerRef = ref<HTMLElement | null>(null)
+
+// 自动滚动到当前项
+function scrollToActive() {
+  if (!containerRef.value) return
+  const activeEl = containerRef.value.querySelector('.exercise-item.active') as HTMLElement
+  if (activeEl) {
+    const container = containerRef.value
+    const scrollLeft = activeEl.offsetLeft - container.offsetWidth / 2 + activeEl.offsetWidth / 2
+    container.scrollTo({
+      left: scrollLeft,
+      behavior: 'smooth'
+    })
+  }
+}
+
+watch(() => props.currentIndex, async () => {
+  await nextTick()
+  scrollToActive()
+}, { immediate: true })
+
+onMounted(() => {
+  // 初始加载时也要滚动
+  setTimeout(scrollToActive, 100)
+})
 </script>
 
 <template>
-  <div class="exercise-progress">
-    <div
-      v-for="(exercise, index) in exercises"
-      :key="exercise.id"
-      class="exercise-item"
-      :class="{
-        active: index === currentIndex,
-        completed: index < currentIndex,
-        upcoming: index > currentIndex,
-      }"
-    >
+  <div class="exercise-progress-wrapper">
+    <!-- 渐变遮罩指示器 -->
+    <div class="fade-mask left"></div>
+    <div class="fade-mask right"></div>
+    
+    <div class="exercise-progress" ref="containerRef">
       <div
-        class="dot"
-        :class="{ exercise: phase === 'exercise' && index === currentIndex, rest: phase === 'rest' && index === currentIndex }"
-      />
-      <span class="name">{{ exercise.name }}</span>
+        v-for="(exercise, index) in exercises"
+        :key="exercise.id"
+        class="exercise-item"
+        :class="{
+          active: index === currentIndex,
+          completed: index < currentIndex,
+          upcoming: index > currentIndex,
+        }"
+      >
+        <div class="status-indicator">
+          <!-- 完成的勾选图标 -->
+          <div v-if="index < currentIndex" class="check-icon">
+            <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+              <path d="M1 4L3.5 6.5L9 1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <!-- 进行中的圆点 -->
+          <div 
+            v-else 
+            class="dot"
+            :class="{ 
+              'pulse-exercise': phase === 'exercise' && index === currentIndex,
+              'pulse-rest': phase === 'rest' && index === currentIndex 
+            }"
+          />
+        </div>
+        
+        <span class="name">{{ exercise.name }}</span>
+        <span v-if="index === currentIndex" class="duration-hint">{{ exercise.duration }}s</span>
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
+.exercise-progress-wrapper {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.fade-mask {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 32px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.fade-mask.left {
+  left: 0;
+  background: linear-gradient(to right, var(--bg-primary), transparent);
+}
+
+.fade-mask.right {
+  right: 0;
+  background: linear-gradient(to left, var(--bg-primary), transparent);
+}
+
 .exercise-progress {
   display: flex;
-  gap: 16px;
-  padding: 12px 16px;
+  gap: 24px;
+  padding: 16px 50% 24px; /* 居中布局 */
   overflow-x: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  scroll-behavior: smooth;
 }
 
 .exercise-progress::-webkit-scrollbar {
@@ -47,47 +121,98 @@ defineProps<{
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   flex-shrink: 0;
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+  width: 60px;
+  opacity: 0.3;
+  transform: scale(0.85);
+  filter: grayscale(1);
 }
 
 .exercise-item.active {
-  transform: scale(1.15);
+  opacity: 1;
+  transform: scale(1.1);
+  filter: grayscale(0);
 }
 
 .exercise-item.completed {
-  opacity: 0.4;
+  opacity: 0.5;
 }
 
-.exercise-item.upcoming {
-  opacity: 0.25;
+.status-indicator {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.check-icon {
+  color: var(--rest-start);
+  animation: scaleIn 0.3s ease;
 }
 
 .dot {
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
-  background: var(--text-muted);
-  transition: background 0.3s ease, box-shadow 0.3s ease;
+  background: rgba(255,255,255,0.2);
+  transition: all 0.3s ease;
 }
 
-.dot.exercise {
-  background: linear-gradient(135deg, var(--exercise-start), var(--exercise-end));
-  box-shadow: 0 0 8px rgba(255, 107, 53, 0.5);
+.dot.pulse-exercise {
+  background: var(--exercise-start);
+  box-shadow: 0 0 0 0 rgba(255, 81, 47, 0.7);
+  animation: pulse-orange 2s infinite;
 }
 
-.dot.rest {
-  background: linear-gradient(135deg, var(--rest-start), var(--rest-end));
-  box-shadow: 0 0 8px rgba(0, 201, 255, 0.5);
+.dot.pulse-rest {
+  background: var(--rest-start);
+  box-shadow: 0 0 0 0 rgba(67, 206, 162, 0.7);
+  animation: pulse-green 2s infinite;
+}
+
+@keyframes pulse-orange {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 81, 47, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(255, 81, 47, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 81, 47, 0); }
+}
+
+@keyframes pulse-green {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(67, 206, 162, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(67, 206, 162, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(67, 206, 162, 0); }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0); }
+  to { transform: scale(1); }
 }
 
 .name {
-  font-size: 11px;
-  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-primary);
   white-space: nowrap;
-  max-width: 60px;
+  max-width: 80px;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-align: center;
+}
+
+.duration-hint {
+  font-size: 10px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  position: absolute;
+  bottom: -18px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 </style>

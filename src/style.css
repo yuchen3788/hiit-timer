@@ -11,20 +11,20 @@
   --bg-overlay: rgba(0, 0, 0, 0.75);
   --bg-input: rgba(0, 0, 0, 0.2);
 
-  /* 品牌色/功能色 (使用 HSL 以便调整亮度) */
-  /* 运动: 活力橙红 -> 玫红 */
-  --exercise-start: #FF512F;
-  --exercise-end: #DD2476;
+  /* 品牌色/功能色 (升级为更有活力的流体渐变) */
+  /* 运动: 烈焰红 -> 活力橙 (高能燃烧感) */
+  --exercise-start: #FF3333;
+  --exercise-end: #FF8C42;
   
-  /* 休息: 清新青色 -> 翠绿 */
-  --rest-start: #43cea2;
-  --rest-end: #185a9d;
+  /* 休息: 极光青 -> 宝石蓝 (清爽恢复感) */
+  --rest-start: #00E5FF;
+  --rest-end: #2979FF;
 
   /* 文字系统 */
-  --text-primary: rgba(255, 255, 255, 0.92);
-  --text-secondary: rgba(255, 255, 255, 0.6);
-  --text-muted: rgba(255, 255, 255, 0.3);
-  --text-highlight: #ffffff;
+  --text-primary: #FFFFFF;
+  --text-secondary: rgba(255, 255, 255, 0.75);
+  --text-muted: rgba(255, 255, 255, 0.45);
+  --text-highlight: #FFFFFF;
 
   /* 圆角 */
   --radius-xs: 4px;
@@ -38,8 +38,8 @@
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.15);
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.25);
   --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.35);
-  --shadow-glow-exercise: 0 0 20px rgba(221, 36, 118, 0.4);
-  --shadow-glow-rest: 0 0 20px rgba(67, 206, 162, 0.4);
+  --shadow-glow-exercise: 0 0 20px rgba(255, 51, 51, 0.4);
+  --shadow-glow-rest: 0 0 20px rgba(0, 229, 255, 0.4);
 
   /* 动效 */
   --transition-fast: 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -49,6 +49,39 @@
   /* 安全区域 */
   --safe-area-top: env(safe-area-inset-top);
   --safe-area-bottom: env(safe-area-inset-bottom);
+}
+
+/* 浅色主题 (紫色系) */
+[data-theme="light"] {
+  /* 背景体系 - 浅灰白 */
+  --bg-primary: #F8F9FB;
+  --bg-secondary: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #F2F4F7;
+  --bg-overlay: rgba(255, 255, 255, 0.9);
+  --bg-input: #EFF1F5;
+
+  /* 品牌色 (浅色模式专属调整) */
+  /* 运动: 优雅紫 -> 梦幻粉 */
+  --exercise-start: #7B1FA2; /* 深紫 */
+  --exercise-end: #E040FB;   /* 亮粉紫 */
+  
+  /* 休息: 清新薄荷 -> 天空蓝 */
+  --rest-start: #00BFA5;
+  --rest-end: #2962FF;
+
+  /* 文字系统 - 深色字 */
+  --text-primary: #1A1A1A;
+  --text-secondary: rgba(0, 0, 0, 0.6);
+  --text-muted: rgba(0, 0, 0, 0.35);
+  --text-highlight: #6200EA; /* 强调色用深紫 */
+
+  /* 阴影调整 (更柔和) */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 32px rgba(98, 0, 234, 0.15); /* 紫色投影 */
+  --shadow-glow-exercise: 0 0 20px rgba(123, 31, 162, 0.2);
+  --shadow-glow-rest: 0 0 20px rgba(0, 191, 165, 0.2);
 }
 
 *,

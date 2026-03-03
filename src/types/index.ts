@@ -13,7 +13,7 @@ export interface Plan {
   rounds: number
 }
 
-export type TimerStatus = 'idle' | 'running' | 'paused'
+export type TimerStatus = 'idle' | 'running' | 'paused' | 'completed'
 
 export type TimerPhase = 'exercise' | 'rest'
 

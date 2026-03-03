@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { usePlansStore } from '@/stores/plans'
 import PlanEditor from '@/components/PlanEditor.vue'
+import ThemeToggle from '@/components/ThemeToggle.vue'
 import type { Plan } from '@/types'
 
 const router = useRouter()
@@ -49,12 +50,15 @@ function formatDuration(seconds: number): string {
   <div class="plans-view">
     <header class="top-bar">
       <h1>训练方案</h1>
-      <button class="btn-add" @click="openCreate">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 5V19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
+      <div class="actions-group">
+        <ThemeToggle />
+        <button class="btn-add" @click="openCreate">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 5V19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
     </header>
 
     <div class="plans-list" v-if="plansStore.plans.length">
@@ -138,6 +142,12 @@ function formatDuration(seconds: number): string {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   letter-spacing: -0.5px;
+}
+
+.actions-group {
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
 .btn-add {
