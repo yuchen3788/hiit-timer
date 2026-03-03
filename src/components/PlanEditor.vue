@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import type { Plan, Exercise } from '@/types'
+import type { Plan } from '@/types'
 
 const props = defineProps<{
   visible: boolean

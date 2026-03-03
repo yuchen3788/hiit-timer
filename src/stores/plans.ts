@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import type { Plan } from '@/types'
 
@@ -34,7 +34,7 @@ export const usePlansStore = defineStore('plans', () => {
   function updatePlan(id: string, data: Partial<Omit<Plan, 'id'>>) {
     const index = plans.value.findIndex((p) => p.id === id)
     if (index !== -1) {
-      plans.value[index] = { ...plans.value[index], ...data }
+      Object.assign(plans.value[index]!, data)
       saveToStorage(plans.value)
     }
   }

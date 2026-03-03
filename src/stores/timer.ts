@@ -116,7 +116,7 @@ export const useTimerStore = defineStore('timer', () => {
         currentExerciseIndex.value = 0
       }
       phase.value = 'exercise'
-      remainingSeconds.value = exercises[currentExerciseIndex.value].duration
+      remainingSeconds.value = exercises[currentExerciseIndex.value]!.duration
       playPhaseChangeBeep()
       vibrate()
     }
