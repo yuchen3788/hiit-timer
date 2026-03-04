@@ -139,6 +139,7 @@ function handleSave() {
                     <option :value="40">40秒</option>
                     <option :value="35">35秒</option>
                     <option :value="30">30秒</option>
+                    <option :value="5">5秒</option>
                   </select>
                 </div>
                 <button
