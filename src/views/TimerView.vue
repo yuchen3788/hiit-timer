@@ -35,6 +35,11 @@ const bgClass = computed(() => {
 const bgStyle = computed(() => {
   if (timerStore.status === 'idle') return {}
   
+  // 浅色模式下不使用JS动态计算的强渐变背景，而是使用CSS定义的柔和背景
+  if (themeStore.theme === 'light') {
+    return {}
+  }
+  
   const progress = 100 - timerStore.progress // 0 to 100
   
   if (timerStore.phase === 'exercise') {
@@ -46,16 +51,6 @@ const bgStyle = computed(() => {
     const r = Math.round(255 + (255 - 255) * p)
     const g = Math.round(51 + (140 - 51) * p)
     const b = Math.round(51 + (66 - 51) * p)
-    
-    // 对于浅色模式, 使用更柔和的颜色
-    if (themeStore.theme === 'light') {
-       // 浅色模式: 浅粉 -> 浅紫
-       // 起始: #FFF0F5 (255, 240, 245)
-       // 结束: #E040FB (224, 64, 251) 
-       // 注意: 这里我们可能需要更精细的控制，或者简单的透明度变化
-       // 暂时复用CSS变量控制的基础色，通过Overlay实现渐变
-       return {}
-    }
     
     return {
       background: `linear-gradient(135deg, rgb(139, 0, 0) 0%, rgb(${r}, ${g}, ${b}) 100%)`
@@ -181,8 +176,8 @@ onBeforeUnmount(() => {
 }
 
 .bg-layer.light.bg-rest {
-  background-color: #E0F7FA; /* 浅青底色 */
-  background-image: radial-gradient(circle at 50% 30%, rgba(0, 191, 165, 0.1), transparent 70%);
+  background-color: #ECFDF5; /* 极浅的薄荷绿底色 */
+  background-image: radial-gradient(circle at 50% 30%, rgba(52, 211, 153, 0.15), transparent 70%);
 }
 
 .top-bar {

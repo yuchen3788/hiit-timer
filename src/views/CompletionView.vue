@@ -23,7 +23,6 @@ const formattedDuration = computed(() => {
   return mins > 0 ? `${mins}分${secs}秒` : `${secs}秒`
 })
 
-const exerciseCount = computed(() => plan.exercises.length * plan.rounds)
 const quote = getRandomQuote()
 
 function goHome() {
@@ -55,20 +54,15 @@ onMounted(() => {
       <h2 class="plan-name">{{ plan?.name }}</h2>
       
       <div class="stats-grid">
-        <div class="stat-item">
-          <span class="stat-value">{{ exerciseCount }}</span>
-          <span class="stat-label">个动作</span>
-        </div>
-        <div class="stat-divider" />
-        <div class="stat-item">
-          <span class="stat-value">{{ plan?.rounds }}</span>
-          <span class="stat-label">轮循环</span>
-        </div>
-        <div class="stat-divider" />
-        <div class="stat-item">
-          <span class="stat-value duration">{{ formattedDuration }}</span>
-          <span class="stat-label">总时长</span>
-        </div>
+      <div class="stat-item">
+        <span class="stat-value">{{ plan?.rounds }}</span>
+        <span class="stat-label">轮循环</span>
+      </div>
+      <div class="stat-divider" />
+      <div class="stat-item">
+        <span class="stat-value duration">{{ formattedDuration }}</span>
+        <span class="stat-label">总时长</span>
+      </div>
       </div>
 
       <p class="motivational-quote">
@@ -153,12 +147,14 @@ onMounted(() => {
 .stats-grid {
   display: flex;
   align-items: center;
-  gap: 20px;
+  justify-content: center; /* 整体居中 */
+  gap: 32px; /* 增加项之间的间距 */
   background: var(--bg-card);
-  padding: 24px;
-  border-radius: var(--radius-lg);
+  padding: 32px 48px; /* 增加内边距 */
+  border-radius: var(--radius-xl); /* 更圆润的角 */
   border: 1px solid rgba(255, 255, 255, 0.08);
   margin-bottom: 40px;
+  box-shadow: var(--shadow-md); /* 增加一点阴影提升质感 */
 }
 
 /* 浅色模式边框适配 */
@@ -169,22 +165,27 @@ onMounted(() => {
 .stat-item {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  align-items: center; /* 确保内容居中对齐 */
+  justify-content: center; /* 确保内容垂直居中 */
+  gap: 8px; /* 增加一点间距，让视觉更舒适 */
+  min-width: 80px; /* 给一个最小宽度，避免太挤 */
 }
 
 .stat-value {
-  font-size: 24px;
+  font-size: 32px; /* 加大数字，突出重点 */
   font-weight: 800;
   color: var(--text-primary);
+  line-height: 1; /* 紧凑行高，避免上下留白过多影响对齐 */
 }
 
 .stat-value.duration {
-  font-size: 20px;
+  font-size: 32px; /* 与轮循环保持一致 */
 }
 
 .stat-label {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-muted);
+  font-weight: 500;
 }
 
 .stat-divider {
@@ -248,7 +249,13 @@ onMounted(() => {
 
 /* 浅色模式次级按钮适配 */
 [data-theme="light"] .btn-secondary {
-  background: rgba(0, 0, 0, 0.05);
-  border-color: rgba(0, 0, 0, 0.05);
+  background: rgba(124, 77, 255, 0.08); /* 使用与新 exercise-start 匹配的紫色 (7C4DFF) */
+  color: #7C4DFF; /* 使用新 exercise-start 颜色 */
+  border-color: rgba(124, 77, 255, 0.2);
+}
+
+/* 浅色模式主按钮阴影适配 */
+[data-theme="light"] .btn-primary {
+  box-shadow: 0 4px 16px rgba(124, 77, 255, 0.25); /* 柔和的紫色阴影 */
 }
 </style>

@@ -24,3 +24,10 @@ export interface TimerState {
   remainingSeconds: number
   phase: TimerPhase
 }
+
+export interface WorkoutRecord {
+  id: string
+  planName: string
+  totalDuration: number
+  completedAt: number
+}

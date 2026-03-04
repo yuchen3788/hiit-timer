@@ -148,7 +148,7 @@ onMounted(() => {
 
 .dot.pulse-rest {
   background: var(--rest-start);
-  box-shadow: 0 0 0 0 rgba(67, 206, 162, 0.7);
+  box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.7); /* 使用更柔和的薄荷绿 */
   animation: pulse-green 2s infinite;
 }
 
@@ -159,9 +159,9 @@ onMounted(() => {
 }
 
 @keyframes pulse-green {
-  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(67, 206, 162, 0.7); }
-  70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(67, 206, 162, 0); }
-  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(67, 206, 162, 0); }
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(52, 211, 153, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
 }
 
 @keyframes scaleIn {

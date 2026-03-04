@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
+import draggable from 'vuedraggable'
 import type { Plan } from '@/types'
 
 const props = defineProps<{
@@ -36,13 +37,13 @@ watch(
       restDuration.value = 15
       roundRestDuration.value = 60
       rounds.value = 3
-      exercises.value = [{ name: '', duration: 30 }]
+      exercises.value = [{ name: '', duration: 45 }]
     }
   }
 )
 
 function addExercise() {
-  exercises.value.push({ name: '', duration: 30 })
+  exercises.value.push({ name: '', duration: 45 })
 }
 
 function removeExercise(index: number) {
@@ -112,26 +113,33 @@ function handleSave() {
 
           <div class="field">
             <label>动作列表 ({{ exercises.length }})</label>
-            <div class="exercises-list">
-              <div
-                v-for="(exercise, index) in exercises"
-                :key="index"
-                class="exercise-row"
-              >
-                <div class="row-num">{{ index + 1 }}</div>
-                <input
+            <draggable
+              v-model="exercises"
+              item-key="index"
+              handle=".drag-handle"
+              ghost-class="exercise-ghost"
+              class="exercises-list"
+            >
+              <template #item="{ element: exercise, index }">
+                <div class="exercise-row">
+                  <div class="drag-handle">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                      <path d="M4 8h16M4 12h16M4 16h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                  </div>
+                  <input
                   v-model="exercise.name"
                   type="text"
                   placeholder="动作名称"
                   class="exercise-name"
                 />
-                <div class="duration-input">
-                  <input
-                    v-model.number="exercise.duration"
-                    type="number"
-                    min="1"
-                  />
-                  <span class="unit">秒</span>
+                <div class="duration-select">
+                  <select v-model.number="exercise.duration">
+                    <option :value="45">45秒</option>
+                    <option :value="40">40秒</option>
+                    <option :value="35">35秒</option>
+                    <option :value="30">30秒</option>
+                  </select>
                 </div>
                 <button
                   class="btn-remove"
@@ -143,8 +151,9 @@ function handleSave() {
                     <path d="M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                   </svg>
                 </button>
-              </div>
-            </div>
+                </div>
+              </template>
+            </draggable>
             <button class="btn-add" @click="addExercise">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="margin-right: 6px;">
                 <path d="M12 5V19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -178,7 +187,7 @@ function handleSave() {
 
 .editor-sheet {
   width: 100%;
-  max-height: 90vh;
+  max-height: calc(100vh - var(--safe-area-top));
   background: var(--bg-secondary);
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   display: flex;
@@ -340,12 +349,23 @@ function handleSave() {
   border: 1px solid rgba(0, 0, 0, 0.06);
 }
 
-.row-num {
+.drag-handle {
   width: 24px;
-  text-align: center;
-  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: var(--text-muted);
-  font-weight: 600;
+  cursor: grab;
+  touch-action: none;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+.exercise-ghost {
+  opacity: 0.5;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .exercise-name {
@@ -356,30 +376,24 @@ function handleSave() {
   font-size: 15px !important;
 }
 
-.duration-input {
+.duration-select {
   position: relative;
-  width: 72px;
+}
+
+.duration-select select {
+  appearance: none;
+  -webkit-appearance: none;
   background: var(--bg-input);
+  border: none;
   border-radius: var(--radius-xs);
-  display: flex;
-  align-items: center;
-}
-
-.duration-input input {
-  width: 100%;
-  background: transparent !important;
-  border: none !important;
-  padding: 8px 24px 8px 8px !important;
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-}
-
-.duration-input .unit {
-  position: absolute;
-  right: 8px;
-  font-size: 12px;
-  color: var(--text-muted);
-  pointer-events: none;
+  padding: 8px 28px 8px 10px;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23888' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
 }
 
 .btn-remove {

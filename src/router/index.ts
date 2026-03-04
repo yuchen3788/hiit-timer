@@ -18,6 +18,11 @@ const router = createRouter({
       name: 'completion',
       component: () => import('@/views/CompletionView.vue'),
     },
+    {
+      path: '/stats',
+      name: 'stats',
+      component: () => import('@/views/StatsView.vue'),
+    },
   ],
 })
 

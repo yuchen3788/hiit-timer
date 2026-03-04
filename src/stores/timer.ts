@@ -7,6 +7,8 @@ import {
   vibrate,
   playCountdownBeep,
 } from '@/utils/audio'
+import { useRecordsStore } from '@/stores/records'
+import { usePlansStore } from '@/stores/plans'
 
 export const useTimerStore = defineStore('timer', () => {
   const currentPlan = ref<Plan | null>(null)
@@ -19,6 +21,29 @@ export const useTimerStore = defineStore('timer', () => {
   let animFrameId: number | null = null
   let intervalId: ReturnType<typeof setInterval> | null = null
   let targetTime = 0
+  let wakeLock: WakeLockSentinel | null = null
+
+  async function requestWakeLock() {
+    try {
+      if ('wakeLock' in navigator) {
+        wakeLock = await navigator.wakeLock.request('screen')
+        wakeLock.addEventListener('release', () => { wakeLock = null })
+      }
+    } catch {}
+  }
+
+  function releaseWakeLock() {
+    wakeLock?.release()
+    wakeLock = null
+  }
+
+  function handleVisibilityChange() {
+    if (document.visibilityState === 'visible' && status.value === 'running') {
+      requestWakeLock()
+    }
+  }
+
+  document.addEventListener('visibilitychange', handleVisibilityChange)
 
   const currentExercise = computed(() => {
     if (!currentPlan.value) return null
@@ -50,16 +75,19 @@ export const useTimerStore = defineStore('timer', () => {
     status.value = 'running'
     targetTime = Date.now() + remainingSeconds.value * 1000
     startTicking()
+    requestWakeLock()
   }
 
   function pause() {
     if (status.value !== 'running') return
     status.value = 'paused'
     stopTicking()
+    releaseWakeLock()
   }
 
   function reset() {
     stopTicking()
+    releaseWakeLock()
     status.value = 'idle'
     if (currentPlan.value) {
       currentRound.value = 1
@@ -169,11 +197,17 @@ export const useTimerStore = defineStore('timer', () => {
 
   function complete() {
     stopTicking()
+    releaseWakeLock()
     status.value = 'completed'
     playCompleteBeep()
-    // 震动反馈
     if (navigator.vibrate) {
       navigator.vibrate([200, 100, 200, 100, 400])
+    }
+    if (currentPlan.value) {
+      const recordsStore = useRecordsStore()
+      const plansStore = usePlansStore()
+      const totalDuration = plansStore.getPlanTotalDuration(currentPlan.value)
+      recordsStore.addRecord(currentPlan.value.name, totalDuration)
     }
   }
 

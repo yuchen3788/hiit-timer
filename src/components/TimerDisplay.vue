@@ -10,7 +10,7 @@ const props = defineProps<{
 }>()
 
 const phaseLabel = computed(() =>
-  props.phase === 'exercise' ? '运动' : '休息'
+  props.phase === 'exercise' ? props.exerciseName || '运动' : '休息'
 )
 </script>
 
@@ -60,10 +60,9 @@ const phaseLabel = computed(() =>
 }
 
 .phase-label {
-  font-size: 18px;
+  font-size: 24px;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 4px;
+  letter-spacing: 2px;
   opacity: 0.8;
   color: var(--text-primary);
   padding: 8px 16px;

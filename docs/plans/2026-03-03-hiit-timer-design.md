@@ -101,3 +101,66 @@ interface TimerState {
 - **图标**：192x192 和 512x512 两套
 - **部署**：本地 `npm run build` → `npx serve dist` → 手机 Safari 访问 Mac 局域网 IP → 添加到主屏幕
 - **注意**：Service Worker 离线缓存需 HTTPS，局域网可后续配自签名证书
+
+## 7. 功能迭代（2026-03-04）
+
+### 7.1 动作拖拽排序
+
+- 引入 `vuedraggable`（基于 sortablejs）
+- `PlanEditor.vue` 动作列表用 `<draggable>` 组件包裹
+- 左侧序号改为拖拽手柄图标（≡），长按拖动调整顺序
+- 拖拽中添加视觉反馈（半透明 + 阴影）
+
+### 7.2 编辑器弹窗刘海屏适配
+
+- `.editor-sheet` 的 `max-height` 从 `90vh` 改为 `calc(100vh - var(--safe-area-top))`
+- 确保弹窗内容不会被刘海遮挡
+
+### 7.3 倒计时防锁屏（Wake Lock）
+
+- 计时器 `start` 时调用 `navigator.wakeLock.request('screen')` 获取屏幕锁
+- `pause` / `reset` / `completed` 时释放锁
+- 监听 `visibilitychange` 事件，页面重新可见时自动重新获取锁
+- 目标平台 iOS 26，原生支持 Wake Lock API，无需 fallback
+
+### 7.4 倒计时动作名放大
+
+- `TimerDisplay.vue` 的 phase-label 区域改为动态内容：
+  - 运动阶段：显示当前动作名称（如"深蹲"、"波比跳"）
+  - 休息阶段：显示"休息"
+- 字体放大，确保在运动中清晰可读
+
+### 7.5 训练记录与月度统计
+
+#### 数据模型
+
+```ts
+interface WorkoutRecord {
+  id: string
+  planName: string       // 方案名称
+  totalDuration: number  // 总时长（秒）
+  completedAt: number    // 完成时间戳
+}
+```
+
+使用 localStorage 持久化，存储在 Pinia store 中。
+
+#### 记录时机
+
+- 训练状态变为 `completed` 时，自动写入一条记录
+
+#### 统计页（StatsView）
+
+- **新增底部 Tab**「统计」，图标用柱状图样式
+- **顶部汇总**：本月完成次数 + 本月总训练时长
+- **日历视图**：按月展示，每个格子代表一天，二元状态——已训练（主题色高亮）/ 未训练（暗灰），每天最多一次训练
+- **月份切换**：左右箭头翻页，中间显示「2026年3月」
+- **底部记录列表**：选中月份的训练记录，显示日期、方案名、时长
+
+#### 涉及文件
+
+- 新增 `src/stores/records.ts` — 训练记录 store
+- 新增 `src/views/StatsView.vue` — 统计页
+- 修改 `src/router/index.ts` — 添加统计页路由
+- 修改 `src/App.vue` — 底部 Tab 栏添加「统计」入口
+- 修改 `CompletionView.vue` 或 `src/stores/timer.ts` — 完成训练时写入记录

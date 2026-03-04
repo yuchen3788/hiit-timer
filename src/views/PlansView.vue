@@ -167,6 +167,14 @@ function formatDuration(seconds: number): string {
   box-shadow: 0 2px 8px rgba(255, 81, 47, 0.3);
 }
 
+[data-theme="light"] .btn-add {
+  box-shadow: 0 4px 16px rgba(124, 77, 255, 0.3);
+}
+
+[data-theme="light"] .btn-add:active {
+  box-shadow: 0 2px 8px rgba(124, 77, 255, 0.2);
+}
+
 .plans-list {
   flex: 1;
   overflow-y: auto;

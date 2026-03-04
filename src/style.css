@@ -63,25 +63,25 @@
 
   /* 品牌色 (浅色模式专属调整) */
   /* 运动: 优雅紫 -> 梦幻粉 */
-  --exercise-start: #7B1FA2; /* 深紫 */
-  --exercise-end: #E040FB;   /* 亮粉紫 */
+  --exercise-start: #7C4DFF; /* 稍亮一点的紫 */
+  --exercise-end: #B388FF;   /* 清新的淡紫 */
   
-  /* 休息: 清新薄荷 -> 天空蓝 */
-  --rest-start: #00BFA5;
-  --rest-end: #2962FF;
+  /* 休息: 清新森林 -> 治愈薄荷 (自然放松感) */
+  --rest-start: #34D399; /* 柔和的翠绿 */
+  --rest-end: #059669;   /* 沉稳的森林绿 */
 
   /* 文字系统 - 深色字 */
   --text-primary: #1A1A1A;
-  --text-secondary: rgba(0, 0, 0, 0.6);
-  --text-muted: rgba(0, 0, 0, 0.35);
-  --text-highlight: #6200EA; /* 强调色用深紫 */
+  --text-secondary: rgba(0, 0, 0, 0.65);
+  --text-muted: rgba(0, 0, 0, 0.4);
+  --text-highlight: #047857; /* 强调色改为深绿色，呼应休息主题，避免紫色刺眼 */
 
   /* 阴影调整 (更柔和) */
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 8px 32px rgba(98, 0, 234, 0.15); /* 紫色投影 */
-  --shadow-glow-exercise: 0 0 20px rgba(123, 31, 162, 0.2);
-  --shadow-glow-rest: 0 0 20px rgba(0, 191, 165, 0.2);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 8px 32px rgba(5, 150, 105, 0.12); /* 绿色系投影 */
+  --shadow-glow-exercise: 0 0 20px rgba(123, 31, 162, 0.15);
+  --shadow-glow-rest: 0 0 20px rgba(16, 185, 129, 0.15);
 }
 
 *,
