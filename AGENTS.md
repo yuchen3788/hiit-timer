@@ -85,3 +85,6 @@ src/
 - `npm run dev` - 启动开发服务器
 - `npm run build` - 构建（vue-tsc 类型检查 + vite build）
 - `npm run preview` - 预览构建产物
+
+## 快捷指令
+- **msg**: 当用户输入 `msg` 时，执行 `git diff --staged` 和 `git diff`，分析工作区所有改动，生成一条简洁的 Git commit message（中文，Conventional Commits 格式，如 `feat: xxx` / `fix: xxx`）。只输出 message，不做其他操作。
