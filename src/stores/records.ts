@@ -102,6 +102,18 @@ export const useRecordsStore = defineStore('records', () => {
     }
   })
 
+  const yearStats = computed(() => {
+    return (year: number) => {
+      const yearRecords = records.value.filter((r) => {
+        return new Date(r.completedAt).getFullYear() === year
+      })
+      return {
+        count: yearRecords.length,
+        totalDuration: yearRecords.reduce((sum, r) => sum + r.totalDuration, 0),
+      }
+    }
+  })
+
   function cleanup() {
     if (unsubscribe) {
       unsubscribe()
@@ -116,6 +128,7 @@ export const useRecordsStore = defineStore('records', () => {
     getRecordsByMonth,
     getTrainedDays,
     monthStats,
+    yearStats,
     cleanup,
   }
 })

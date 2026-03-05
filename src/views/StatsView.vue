@@ -11,15 +11,9 @@ const currentMonth = ref(now.getMonth())
 const monthLabel = computed(() => `${currentYear.value}年${currentMonth.value + 1}月`)
 
 const stats = computed(() => recordsStore.monthStats(currentYear.value, currentMonth.value))
+const annualStats = computed(() => recordsStore.yearStats(currentYear.value))
 
 const trainedDays = computed(() => recordsStore.getTrainedDays(currentYear.value, currentMonth.value))
-
-const monthRecords = computed(() => {
-  return recordsStore
-    .getRecordsByMonth(currentYear.value, currentMonth.value)
-    .slice()
-    .sort((a, b) => b.completedAt - a.completedAt)
-})
 
 const calendarDays = computed(() => {
   const year = currentYear.value
@@ -64,11 +58,6 @@ function formatDuration(seconds: number): string {
   return secs > 0 ? `${mins}分${secs}秒` : `${mins}分钟`
 }
 
-function formatDate(timestamp: number): string {
-  const d = new Date(timestamp)
-  return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
-}
-
 const isToday = (day: number) => {
   const today = new Date()
   return (
@@ -86,32 +75,44 @@ const isToday = (day: number) => {
     </header>
 
     <div class="stats-content">
-      <!-- 顶部汇总 -->
+      <!-- 年度汇总 -->
+      <div class="section-label">{{ currentYear }}年</div>
       <div class="summary-row">
-        <div class="summary-item">
-          <span class="summary-value">{{ stats.count }}</span>
+        <div class="summary-card">
+          <span class="summary-value exercise-text">{{ annualStats.count }}</span>
           <span class="summary-label">次训练</span>
         </div>
-        <div class="summary-divider" />
-        <div class="summary-item">
-          <span class="summary-value">{{ formatDuration(stats.totalDuration) }}</span>
+        <div class="summary-card">
+          <span class="summary-value exercise-text">{{ formatDuration(annualStats.totalDuration) }}</span>
           <span class="summary-label">总时长</span>
         </div>
       </div>
 
-      <!-- 月份切换 -->
+      <!-- 月份导航 -->
       <div class="month-nav">
         <button class="nav-btn" @click="prevMonth">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
             <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </button>
         <span class="month-label">{{ monthLabel }}</span>
         <button class="nav-btn" @click="nextMonth">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
             <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </button>
+      </div>
+
+      <!-- 月度汇总 -->
+      <div class="summary-row">
+        <div class="summary-card">
+          <span class="summary-value rest-text">{{ stats.count }}</span>
+          <span class="summary-label">次训练</span>
+        </div>
+        <div class="summary-card">
+          <span class="summary-value rest-text">{{ formatDuration(stats.totalDuration) }}</span>
+          <span class="summary-label">总时长</span>
+        </div>
       </div>
 
       <!-- 日历 -->
@@ -133,21 +134,6 @@ const isToday = (day: number) => {
             <span v-if="day !== null">{{ day }}</span>
           </div>
         </div>
-      </div>
-
-      <!-- 记录列表 -->
-      <div class="records-section">
-        <h3 class="section-title">训练记录</h3>
-        <div v-if="monthRecords.length" class="records-list">
-          <div v-for="record in monthRecords" :key="record.id" class="record-item">
-            <div class="record-info">
-              <span class="record-name">{{ record.planName }}</span>
-              <span class="record-date">{{ formatDate(record.completedAt) }}</span>
-            </div>
-            <span class="record-duration">{{ formatDuration(record.totalDuration) }}</span>
-          </div>
-        </div>
-        <p v-else class="empty-records">本月暂无训练记录</p>
       </div>
     </div>
   </div>
@@ -181,107 +167,102 @@ const isToday = (day: number) => {
   padding-bottom: calc(80px + var(--safe-area-bottom));
 }
 
+/* 区域标签 */
+.section-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+}
+
+/* 汇总卡片行 */
 .summary-row {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 32px;
-  background: var(--bg-card);
-  padding: 24px;
-  border-radius: var(--radius-xl);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  margin-bottom: 24px;
+  gap: 12px;
+  margin-bottom: 32px;
 }
 
-[data-theme="light"] .summary-row {
-  border-color: rgba(0, 0, 0, 0.06);
-  box-shadow: var(--shadow-sm);
-}
-
-.summary-item {
+.summary-card {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 6px;
+  gap: 4px;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
 }
 
-.summary-value {
+[data-theme="light"] .summary-card {
+  background: var(--bg-card);
+}
+
+.summary-card .summary-value {
   font-size: 28px;
   font-weight: 800;
-  color: var(--text-primary);
-  line-height: 1;
+  line-height: 1.1;
 }
 
-.summary-label {
+.summary-card .summary-label {
   font-size: 13px;
   color: var(--text-muted);
   font-weight: 500;
 }
 
-.summary-divider {
-  width: 1px;
-  height: 36px;
-  background: rgba(255, 255, 255, 0.1);
+.exercise-text {
+  color: var(--exercise-start);
 }
 
-[data-theme="light"] .summary-divider {
-  background: rgba(0, 0, 0, 0.08);
+.rest-text {
+  color: var(--rest-start);
 }
 
+/* 月份导航 */
 .month-nav {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 24px;
+  gap: 20px;
   margin-bottom: 16px;
 }
 
 .nav-btn {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--text-secondary);
+  color: var(--text-muted);
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all var(--transition-fast);
 }
 
-[data-theme="light"] .nav-btn {
-  background: rgba(0, 0, 0, 0.04);
-}
-
 .nav-btn:active {
   transform: scale(0.9);
-  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
 }
 
 .month-label {
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--text-primary);
   min-width: 100px;
   text-align: center;
 }
 
+/* 日历 */
 .calendar {
-  background: var(--bg-card);
-  border-radius: var(--radius-lg);
-  padding: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  margin-bottom: 24px;
-}
-
-[data-theme="light"] .calendar {
-  border-color: rgba(0, 0, 0, 0.06);
-  box-shadow: var(--shadow-sm);
+  padding: 8px 0;
 }
 
 .calendar-header {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   margin-bottom: 8px;
+  max-width: 320px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .weekday {
@@ -294,19 +275,22 @@ const isToday = (day: number) => {
 .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
+  gap: 6px;
+  max-width: 320px;
+  margin: 0 auto;
 }
 
 .calendar-cell {
-  aspect-ratio: 1;
+  width: 36px;
+  height: 36px;
+  margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
-  color: var(--text-secondary);
-  border-radius: var(--radius-sm);
-  position: relative;
+  color: var(--text-muted);
+  border-radius: 50%;
 }
 
 .calendar-cell.empty {
@@ -316,87 +300,16 @@ const isToday = (day: number) => {
 .calendar-cell.today {
   color: var(--text-primary);
   font-weight: 700;
-}
-
-.calendar-cell.today::after {
-  content: '';
-  position: absolute;
-  bottom: 2px;
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: var(--text-muted);
+  box-shadow: inset 0 0 0 1.5px var(--text-muted);
 }
 
 .calendar-cell.trained {
-  background: linear-gradient(135deg, var(--exercise-start), var(--exercise-end));
+  background: var(--exercise-start);
   color: #fff;
   font-weight: 700;
 }
 
-.calendar-cell.trained.today::after {
-  background: rgba(255, 255, 255, 0.7);
-}
-
-.records-section {
-  margin-top: 8px;
-}
-
-.section-title {
-  font-size: 17px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 12px;
-}
-
-.records-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.record-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: var(--bg-card);
-  padding: 14px 16px;
-  border-radius: var(--radius-md);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-[data-theme="light"] .record-item {
-  border-color: rgba(0, 0, 0, 0.06);
-  box-shadow: var(--shadow-sm);
-}
-
-.record-info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.record-name {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.record-date {
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.record-duration {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--rest-start);
-}
-
-.empty-records {
-  text-align: center;
-  color: var(--text-muted);
-  font-size: 14px;
-  padding: 32px 0;
+.calendar-cell.trained.today {
+  box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.5);
 }
 </style>
